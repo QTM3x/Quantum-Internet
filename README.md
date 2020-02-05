@@ -22,6 +22,10 @@ Open source projects with collaboration on the wide-scale we are going for here 
 
 * a) Be polite and thoughtful of others. Let you aim be to understand the other's person point of view, then to learn from them if they are right, and to teach them if they are wrong.
 
+##### 4- Write well, and add figures
+
+
+
 
 
 
