@@ -60,7 +60,7 @@ Open source projects with collaboration on the wide-scale we are going for here 
 * b) Be unusually honest about your work; lean over backwards to convey the truth, [as Feynman would say](https://en.wikipedia.org/wiki/Cargo_cult_science).
 
 
-4- [Have fun, and work hard!](https://www.youtube.com/watch?v=uxKmDWDUZ5A)
+4- [Have fun!](https://www.youtube.com/watch?v=uxKmDWDUZ5A)
 
 
 
