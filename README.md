@@ -36,7 +36,7 @@ As a starting point, we will consider our application to be quantum key distribu
 
 ### How to contribute
 
-Simple: create a fork of the repository, edit the files in the fork, then create a pull request. 
+Simple: create a fork of the repository, edit the files in the fork, then create a pull request; see [this video](https://youtu.be/ZlVHf_hAt1A) for a quick walk-through. If you are not familiar with Github as a platform, here is a nice introductory [video](https://youtu.be/w3jLJU7DT5E).
 
 If you have a question, you may ask it in the form of an issue. To raise an issue, simply go to the issues tab and create a new issue. Try to create an issue only when necessary (see point 1 in the guidelines below!).
 
