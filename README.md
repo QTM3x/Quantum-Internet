@@ -31,7 +31,7 @@ Our approach will be to begin from the applications layer: what do we need a qua
 
 ### Goal
 
-As a starting point, we will consider our application to be quantum key distribution using the BB84 protocol (see more in the applications layer folder). **Precise initial goal:** design a quantum internet that we can use to implement the BB84 protocol fast enough to share 64-bits of secret key in under an hour. This goal might be altered later if it turns out to be too complicated for an initial goal.
+As a starting point, we will consider our application to be quantum key distribution using the BB84 protocol (see more in the applications layer folder). **Precise initial goal:** design a quantum internet that we can use to implement the BB84 protocol fast enough to share 64-bits of secret key between two parties separated by 100 km in under an hour. This goal might be altered later if it turns out to be too complicated for an initial goal.
 
 
 ### How to contribute
