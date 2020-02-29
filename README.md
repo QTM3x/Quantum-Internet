@@ -1,5 +1,7 @@
 # Quantum-Internet
 
+##### STATUS UPDATE: The protocol definition of the BB84 protocol has been added (see [here](https://github.com/QTM3x/Quantum-Internet/blob/master/1.%20The%20Applications%20Layer/BB84.md)). Now we can start thinking about how to implement our goal (see below).
+
 ### About
 In this repository, we will collaborate on building a quantum internet and developing applications for it. The repository is divided into five main sections, each concerned with one of the five --- they might increase or decrease later --- layers of the quantum internet stack. 
 
@@ -41,6 +43,8 @@ Simple: create a fork of the repository, edit the files in the fork, then create
 If you have a question, you may ask it in the form of an issue. To raise an issue, simply go to the issues tab and create a new issue. Try to create an issue only when necessary (see point 1 in the guidelines below!).
 
 If you don't know how to begin contributing, have a look at the open issues and try to help with one of them. In fact, we recommend you start by doing that.
+
+Things that can be contributed to the repository include, but are not limited to, code, explanation text, explanation videos, ideas, and research questions. **The repository is still young and a lot of stuff need to be added, so just contribute what you can!**
 
 ##### Contribution guidelines
 
