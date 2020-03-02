@@ -3,9 +3,9 @@
 ##### STATUS UPDATE: The protocol definition of the BB84 protocol has been added (see [here](https://github.com/QTM3x/Quantum-Internet/blob/master/1.%20The%20Applications%20Layer/BB84.md)). Now we can start thinking about how to implement our goal (see below).
 
 ### About
-In this repository, we will collaborate on building a quantum internet and developing applications for it. The repository is divided into five main sections, each concerned with one of the five --- they might increase or decrease later --- layers of the quantum internet stack. 
+In this repository, we will collaborate on building a quantum internet and developing applications for it. For a very accessible introduction to the quantum internet, see Wojtek242's text [here](https://github.com/Wojtek242/draft-irtf-qirg-principles/blob/c41da3a1603671cd2a1552d550a588c64618f943/draft-irtf-qirg-principles-03.txt).
 
-If you're unfamiliar with the internet stack, this [blog post](https://blog.qutech.nl/index.php/2019/05/22/a-quantum-network-stack/) by Axel, a PhD student at QuTech, is a great place to begin. To sum up the blog post, the components of the quantum internet are projected to fall into one of five categories or layers.
+The repository is divided into five main sections, each concerned with one of the five --- they might increase or decrease later --- layers of the quantum internet stack. If you're unfamiliar with the internet stack, this [blog post](https://blog.qutech.nl/index.php/2019/05/22/a-quantum-network-stack/) by Axel, a PhD student at QuTech, is a great place to begin. To sum up the blog post, the components of the quantum internet are projected to fall into one of five categories or layers.
 
 * The Applications Layer
 
