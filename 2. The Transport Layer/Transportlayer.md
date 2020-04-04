@@ -36,6 +36,7 @@ Just like its classical counterpart, UDP, the quantum UDP protocol uses a
 simple connectionless communication model with a minimum of protocol mechanism.
 
 Two communicating quantum processes, says Alice and Bob, use classical UDP sockets to interact. After establishing sockets, Alice, the sender at this round, firstly applies the quantum checksum and her qubits are now called the quantum segments, says _n_ qubits. Alice has to apply the joint measurements on her segments and the particles of the EPRs which she would receive from the network layer. This measurement on EPR and quantum segments would now generate a _2n_ -bit string _s_. She now uses the classical checksum on s and sends the resulting classical bits by the classical UDP protocol with following packet structure:
+					
 					 ------------------------------------------
 					| Classical  | UDP header | Indicator Data |
 					 ------------------------------------------
@@ -93,12 +94,14 @@ of the corresponding EPRs in _m<sub>1</sub>, . . . ,m<sub>t</sub>_. */
 
 ###  Quantum Transmission Control Protocol (qTCP)
 
-A qTCP would provide a connection-oriented, reliable, ordered, and
+A qTCP would have to provide a connection-oriented, reliable, ordered, and
 error-checking delivery of a quantum data stream between
 host with guaranteed delivery of application-layer messages to the
 destination and flow control.
 
-To guarantee datagram delivery, a quantum version of information retransmission is needed, working around the challenges posed by the no-cloning theorem. The qTCP packet is designed as follows:
+To guarantee datagram delivery, a quantum version of information retransmission is needed which would have to work around the challenges posed by the no-cloning theorem. 
+
+The qTCP packet is designed as follows:
 
 					 ________________________________  
 					
@@ -112,31 +115,66 @@ To guarantee datagram delivery, a quantum version of information retransmission 
 The indicator implies that this is a qTCP packet for quantum
 repeater network. Besides the correction of Pauli measurement outcomes, the data part also contains the positions of  the corresponding EPRs between two nodes that just been consumed. To reach reliable transmission, a packet of quantum information is not transmitted in one step in qTCP, but in at least two stages. Only if the transmission of both parties is successful, the quantum information is successfully transmitted. The Pseudo acknowledgement number and Pseudo Window are used to record the status of the transmission. We will explain the Pseudo acknowledgement number in the following Data transfer part. 
 
-The logical process-to-process connections of qTCP is established by a quantum version of the three-way handshake protocol before entering the data transfer phase. After data transmission is completed, the connection termination
-closes established virtual circuits and releases all allocated
-resources
-A qTCP would provide a connection-oriented, reliable, ordered, and
-error-checking delivery of a quantum data stream between
-host with guaranteed delivery of application-layer messages to the
-destination and flow control.
+The qTCP protocol operations may be divided into three
+phases. 
+* The logical process-to-process connections of qTCP is established by a quantum version of the three-way handshake protocol before entering the data transfer phase. 
+* Data transfer phase.
+* After data transmission is completed, the connection termination  closes established virtual circuits and releases all allocated resources.
 
-To guarantee datagram delivery, a quantum version of information retransmission is needed, working around the challenges posed by the no-cloning theorem. The qTCP packet is designed as follows:
+#### Quantum three-way handshake.
 
-					 ________________________________  
-					
-					|	Classical TCP header          |
-					|	Indicator                     |
-					|	Pseudo acknowledgement number |
-					|	Pseudo Window                 |
-					|	Data                          | 
-					 _________________________________
+Just like classical counter part a client (host _A_) initates the establishment of a full duplex channell with a server (host _B_). A quantum three-way handshake protocol operates as follows:
 
-The indicator implies that this is a qTCP packet for quantum
-repeater network. Besides the correction of Pauli measurement outcomes, the data part also contains the positions of  the corresponding EPRs between two nodes that just been consumed. To reach reliable transmission, a packet of quantum information is not transmitted in one step in qTCP, but in at least two stages. Only if the transmission of both parties is successful, the quantum information is successfully transmitted. The Pseudo acknowledgement number and Pseudo Window are used to record the status of the transmission. We will explain the Pseudo acknowledgement number in the following Data transfer part. 
+1. **SYN**: Host _A_ establishes _m_ local EPR pairs **_|Φ<sup>+</sup>⟩<sub>A<sub>1</sub>A<sub>2</sub></sub>_**
+. Host _A_ sends _SYN_ to Host _B_, together with the quantum information of _A<sub>2</sub>_ (stored as _B<sub>2</sub>_ by Host _B_) by a
+qTCP packet.
 
-The logical process-to-process connections of qTCP is established by a quantum version of the three-way handshake protocol before entering the data transfer phase. After data transmission is completed, the connection termination
-closes established virtual circuits and releases all allocated
-resources
+2. **SYN-ACK**: Host _B_ receives the qTCP packet. Firstly,
+he applies the Pauli correction to _B<sub>2</sub>_, and then sends
+_SYN+1_ to Host _A_, together with the quantum information of _B<sub>2</sub>_ (stored as _A<sub>2</sub>_ by _A_). Also, Host _B_ establishes
+_m_ local EPR pairs _|Φ<sup>+</sup>⟩<sub>B<sub>3</sub>B<sub>4</sub></sub>_
+. Then Host _B_ sends _ACK_ to Host _A_, together with the quantum information of _B<sub>3</sub>_ (stored as _A<sub>3</sub>_ by _A_) by a qTCP packet. After verifying
+_SYN+1_, Host _A_ performs a multi-qubit Bell measurement on A<sub>1</sub>A<sub>2</sub> and checks whether the measurement outcome is _0<sup>2m</sup>_.
+
+3. **ACK**: Host _A_ sends _ACK+1_, and transfers the quantum information of _A<sub>3</sub>_ to _B<sub>3</sub>_ of Host _B_. After verifying _ACK+1_, Host _B_ performs a multi-qubit Bell measurement on _B<sub>3</sub>B<sub>4</sub>_ and check whether the measurement
+outcome is _0<sup>2m</sup>_.
+
+The steps 1, 2 establish the classical and quantum connections
+for one direction and it is acknowledged. The steps 2, 3
+establish the quantum connection for the other direction
+and it is acknowledged. With these, a full-duplex quantum
+communication is established
+
+<img src = "images/3_way_handshake.png">
+
+
+#### Data Retransmission
+
+To handle quantum retransmission, we start with a simple
+question: How to achieve reliable transmission of a one-qubit state
+_|ψ⟩_ from Host A to Host B through a noisy quantum channel?
+
+A multi-round protocol for retransmission, can  be modelled as follows:
+1.  Host _A_ encodes _|ψ⟩_ into _|φ⟩<sub>A<sub>1</sub>A<sub>2</sub>A<sub>3</sub></sub>_ , and sends register _A<sub>2</sub>_ to Host _B_.
+2. Host _B_ sends Host _A_ the acknowledgement whether the transmission is successful.
+(a) If unsuccessful, the hosts will do other actions.
+(b) Otherwise, Host _A_ sends _A<sub>3</sub>_ to Host _B_.
+
+The reliability requires at least the following fact: once a
+transmission failed, the hosts are able to recover the original
+state from the remaining qubits.we want an encoding scheme from |ψ⟩ to _|φ⟩<sub>A<sub>1</sub>A<sub>2</sub>A<sub>3</sub></sub>_ such that any two of _{A1,A2,A3}_ can reconstruct the unknown _|ψ⟩_. ( An _(k,n)_-
+threshold scheme is such that any _k_ shares, but not fewer, _1_
+can jointly recover the secret. Above is _(2,3)_)
+
+<img src="images/tcp_retransmission.png">
+<img src="images/successful_tcp.png">
+
+
+
+
+
+
+
 
 
 
