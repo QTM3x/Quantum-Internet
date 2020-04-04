@@ -168,16 +168,3 @@ can jointly recover the secret. Above is _(2,3)_)
 
 <img src="images/tcp_retransmission.png">
 <img src="images/successful_tcp.png">
-
-
-
-
-
-
-
-
-
-
-
-
-
