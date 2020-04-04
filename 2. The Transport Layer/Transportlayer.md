@@ -10,7 +10,7 @@
 
 * Flow Control-->  Sender and receiver should decide before transmitting the amount of data each can handle in their buffer memory. Transport layer should be able to figure out ideal transmission layer.
 
-##  DIFFICULTIES, CHALLENGES need for different protocol from Classical internet for the Quantum internet.
+##  Difficulties, Challenges and need for different protocol from classical internet for the Quantum internet.
 
 The following challenges call for the need to have seperate protocols for our quantum network
 
@@ -168,16 +168,3 @@ can jointly recover the secret. Above is _(2,3)_)
 
 <img src="images/tcp_retransmission.png">
 <img src="images/successful_tcp.png">
-
-
-
-
-
-
-
-
-
-
-
-
-
