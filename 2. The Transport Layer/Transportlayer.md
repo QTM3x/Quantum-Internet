@@ -168,3 +168,7 @@ can jointly recover the secret. Above is _(2,3)_)
 
 <img src="images/tcp_retransmission.png">
 <img src="images/successful_tcp.png">
+
+## References
+[1] Protocols for Packet Quantum Network Intercommunication.
+https://arxiv.org/pdf/1903.10685.pdf
