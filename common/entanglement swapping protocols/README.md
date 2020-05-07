@@ -1,0 +1,1 @@
+Entanglement swapping is used in quantum repeaters to merge to short entanglement links to a long entanglement link.
