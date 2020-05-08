@@ -1,1 +1,1 @@
-Entanglement distillation protocols are protocols that take as input many low-quality entangled states and output one high quality entangled state.
+Entanglement distillation protocols are protocols that take as input many low-quality entangled states and output one high-quality entangled state.
