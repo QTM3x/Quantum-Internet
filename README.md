@@ -1,5 +1,8 @@
 # Quantum Internet
 
+
+*Click on "launch binder" to run the Python notebooks in this repository in your browser.*
+
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BassemSafieldeen/Quantum-Internet/master)
 
 
