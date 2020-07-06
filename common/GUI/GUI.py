@@ -1,6 +1,10 @@
 
 from IPython.display import clear_output
 
+def init():
+    global gui
+    gui = GUI()
+
 class GUI(object):
     def __init__(self):
         self.request_queue = []
