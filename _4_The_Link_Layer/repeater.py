@@ -1,8 +1,8 @@
-
 import sys
 
 sys.path.append("..")
-from _5_The_Physical_Layer.repeater_hardware import RepeaterHardware
+from _5_The_Physical_Layer.node_hardware.repeater_hardware import RepeaterHardware
+print("imported RepeaterHardware object", RepeaterHardware)
 
 class Repeater(object):
     def __init__(self, parent_repeater_chain, n=1):
@@ -113,6 +113,6 @@ class Repeater(object):
             # create the link
             self.attempt_link_creation() #specify nodes here#
 
-    def requestLink(self, remote_repeater):
+    def request_link(self, remote_repeater):
         msg = pack_link_request(self.netId)
         self.send_message(other, msg)

@@ -2,7 +2,7 @@
 import sys
 
 sys.path.append("..")
-from _5_The_Physical_Layer.opticalFiber.opticalFiber import OpticalFiber
+from _5_The_Physical_Layer.optical_fiber.optical_fiber import OpticalFiber
 
 class Cable(object):
     def __init__(self, node1, node2):

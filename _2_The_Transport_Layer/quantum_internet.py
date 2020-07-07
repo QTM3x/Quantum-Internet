@@ -1,9 +1,7 @@
-
 import sys
 
 sys.path.append("..")
-
-from _3_The_Network_Layer.repeater_chain import repeater_chain
+from _3_The_Network_Layer.repeater_chain import RepeaterChain
 from common.global_state_container import global_state_container
 
 class QuantumInternet(object):

@@ -1,9 +1,8 @@
-
 import sys
 
 sys.path.append("..")
 from common.global_state_container import global_state_container
-from _5_the_physical_layer import photon
+from ..qubit_carriers.photon import Photon
 
 class OpticalFiber(object):
     def __init__(self, node1, node2, length=1):
@@ -16,8 +15,8 @@ class OpticalFiber(object):
         # etc. For now it's a repeaterHardware object for simplicity.
         self.node1 = node1
         self.node2 = node2
-        self.photon12 = photon.Photon(self)   # this is the photon going from node 1 to node 2
-        self.photon21 = photon.Photon(self)
+        self.photon12 = Photon(self)   # this is the photon going from node 1 to node 2
+        self.photon21 = Photon(self)
 
     def carry_photon(self, photon, sender, receiver):  # Here there will be a quantum channel applied to the state
         # apply channel here

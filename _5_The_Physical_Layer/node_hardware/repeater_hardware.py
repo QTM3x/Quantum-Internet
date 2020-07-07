@@ -1,20 +1,20 @@
-
 import sys
 
-sys.path.append(".")
 import random
 from qutip import *
 
-from .qubit import qubit
+# sys.path.append("../..")
+from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
+print("imported Qubit object")
 
-sys.path.append("../..")
+# sys.path.append("../..")
 from common.global_state_container import global_state_container
-# print(Global_Quantum_State_Container)
+print("imported global_state_container global variable")
 
-class repeater_hardware(object):
+class RepeaterHardware(object):
     def __init__(self, parent_repeater, qubits=2):
         self.parent_repeater = parent_repeater
-        self.global_state = global_state_container.globalState
+        self.global_state = global_state_container.state
         self.left_qubit = Qubit(self)
         self.right_qubit = Qubit(self)
         self.left_optical_fiber = None

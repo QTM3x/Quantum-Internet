@@ -1,11 +1,11 @@
-
 import sys
 
 sys.path.append("../..")
 from common.global_state_container import global_state_container
+print("imported global_state_container module", global_state_container)
 
 class Photon(object):
-    def __init__(self, parentOpticalFiber):
+    def __init__(self, parent_optical_fiber):
         self.global_state = global_state_container.state
         self.id = self.global_state.create_qubit()
         self.parent_optical_fiber = parent_optical_fiber

@@ -5,7 +5,8 @@ from qutip import *
 import math
 
 sys.path.append("..")
-from common.gui import GUI
+from common.gui import gui
+print("imported gui", gui)
 
 # https://stackoverflow.com/questions/13034496/using-global-variables-between-files
 def init():
@@ -27,7 +28,7 @@ class GlobalState(object):
 #         if GUI.GUI is not None:
 #             GUI.GUI.update_gui()
         try:
-            GUI.GUI.update_gui()
+            gui.update_gui()
         except:
             print("GUI not on")
             
@@ -46,9 +47,9 @@ class GlobalState(object):
     
     def create_qubit(self):
         if self.state is None:
-            newState = basis(2,0) * basis(2,0).dag()
+            new_state = basis(2,0) * basis(2,0).dag()
         else:
-            newState = tensor(self.state, basis(2,0) * basis(2,0).dag())
-        self.updateState(newState)
-        numberOfQubits = int(math.log2(self.state.shape[0]))
-        return numberOfQubits
+            new_state = tensor(self.state, basis(2,0) * basis(2,0).dag())
+        self.update_state(new_state)
+        number_of_qubits = int(math.log2(self.state.shape[0]))
+        return number_of_qubits
