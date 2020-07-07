@@ -33,7 +33,7 @@ class Repeater(object):
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
-    def attempt_distillation(self, links):
+    def attempt_distillation(self, remote_repeater):
         self.repeater_hardware.attempt_distillation()
 
     # this function emits a signal to the link layer (which here takes the form 

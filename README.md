@@ -2,7 +2,7 @@
 
 
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BassemSafieldeen/Quantum-Internet/master)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QTM3x/Quantum-Internet/master)
 
 
 [![Gitter](https://badges.gitter.im/Quantum-Internet/community.svg)](https://gitter.im/Quantum-Internet/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
