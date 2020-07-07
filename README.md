@@ -1,10 +1,14 @@
 # Quantum Internet
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/QTM3x/Quantum-Internet/master)
+
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/BassemSafieldeen/Quantum-Internet/master)
+
 
 [![Gitter](https://badges.gitter.im/Quantum-Internet/community.svg)](https://gitter.im/Quantum-Internet/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 *Click on "launch binder" to run the Python notebooks in this repository in your browser.*
+
 
 ##### CURRENT GOAL ([here](https://github.com/QTM3x/Quantum-Internet/blob/master/1.%20The%20Applications%20Layer/BB84.md)): Design a quantum internet that we can use to implement the BB84 protocol fast enough to share 64-bits of secret key between two parties separated by 100 km in under an hour.
 
