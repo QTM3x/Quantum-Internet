@@ -4,9 +4,9 @@ import sys
 from qutip import *
 import math
 
-sys.path.append("..")
-from common.gui import gui
-print("imported gui", gui)
+sys.path.append("../..")
+from common.GUI import GUI
+# print("imported gui", gui)
 
 # https://stackoverflow.com/questions/13034496/using-global-variables-between-files
 def init():
@@ -17,7 +17,7 @@ def init():
 class GlobalState(object):
     def __init__(self):
 #         self.N = N # the number of qubits
-#         GUI.init()
+        GUI.init()
 #         self.M = N - 1 # this is the number of optical fibers
         self.state = None # everything starts in the |000..0> state.
         
@@ -46,6 +46,7 @@ class GlobalState(object):
         pass
     
     def create_qubit(self):
+        print("creating new qubit in global state")
         if self.state is None:
             new_state = basis(2,0) * basis(2,0).dag()
         else:

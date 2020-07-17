@@ -7,6 +7,7 @@ from common.global_state_container import global_state_container
 
 class endnode_hardware(object):
     def __init__(self, parent_endnode, qubits=1):
+        print("creating endnode hardware")
 #         self.id = None
         self.parent_endnode = parent_endnode
         self.global_state = global_state_container
@@ -15,6 +16,7 @@ class endnode_hardware(object):
 #         self.memoryQubits = []
 
     def connect_fiber(self, fiber):
+        print("connecting fiber")
         self.optical_fiber = fiber
 
     def send_message(self, obj, msg):

@@ -4,6 +4,3 @@
 *~
 #To ignore jupyter checkpoint folders
 .ipynb_checkpoints
-
-common/GUI/__pycache__/__init__.cpython-37.pyc
-common/GUI/__pycache__/GUI.cpython-37.pyc

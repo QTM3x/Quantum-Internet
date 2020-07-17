@@ -1,6 +1,7 @@
 
 class Application(object): # this code runs on the user's PQC (personal quantum computer)
     def __init__(self, username = None):
+        print("creating new application")
         self.quantum_internet = None
         this.username = username
         # endnode is the node the application is running on

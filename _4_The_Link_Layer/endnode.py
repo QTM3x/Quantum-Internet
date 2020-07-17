@@ -1,8 +1,10 @@
 
 from ../5_The_Physical_Layer import EndnodeHardware
+print("imported EndnodeHardware object", EndnodeHardware)
 
 class Endnode(object):
     def __init__(self):
+        print("creating new endnode")
         self.netId = None
         self.endnode_hardware = EndnodeHardware(self)
         self.link = None

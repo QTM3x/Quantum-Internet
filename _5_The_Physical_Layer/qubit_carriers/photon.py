@@ -6,6 +6,7 @@ print("imported global_state_container module", global_state_container)
 
 class Photon(object):
     def __init__(self, parent_optical_fiber):
+        print("creating new photon")
         self.global_state = global_state_container.state
         self.id = self.global_state.create_qubit()
         self.parent_optical_fiber = parent_optical_fiber
@@ -14,7 +15,8 @@ class Photon(object):
     # This should be done everytime the qubit is used, 
     # because in real experiments the photon is absorbed 
     # and we have to use a new photon.
-    def reset(self):               
+    def reset(self):
+        print("resetting photon")
         # Resetting is non-trivial! If the qubit 
         # you are initialization /reseting is entangled with other 
         # qubits you can mess up, or more precisely, lose track, of 

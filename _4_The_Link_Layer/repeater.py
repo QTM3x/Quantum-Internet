@@ -6,6 +6,7 @@ print("imported RepeaterHardware object", RepeaterHardware)
 
 class Repeater(object):
     def __init__(self, parent_repeater_chain, n=1):
+        print("creating new repeater")
         self.netId = None
         self.parent_repeater_chain = parent_repeater_chain
         self.repeater_hardware = RepeaterHardware(self)
@@ -15,10 +16,12 @@ class Repeater(object):
         self.right_cable = None
 
     def connect_right_cable(self, cable):
+        print("connecting right cable in repeater")
         self.right_cable = cable
         self.repeater_hardware.connect_right_fiber(cable.optical_fiber)
         
     def connect_left_cable(self, cable):
+        print("connecting left cable in repeater")
         self.left_cable = cable
         self.repeater_hardware.connect_left_fiber(cable.optical_fiber)
     

@@ -13,6 +13,7 @@ print("imported global_state_container global variable")
 
 class RepeaterHardware(object):
     def __init__(self, parent_repeater, qubits=2):
+        print("creating new repeater hardware")
         self.parent_repeater = parent_repeater
         self.global_state = global_state_container.state
         self.left_qubit = Qubit(self)
@@ -22,9 +23,11 @@ class RepeaterHardware(object):
 #         self.memoryQubits = []
 
     def connect_right_fiber(self, fiber):
+        print("connecting right optical fiber")
         self.right_optical_fiber = fiber
     
     def connect_left_fiber(self, fiber):
+        print("connecting left optical fiber")
         self.left_optical_fiber = fiber
     
     def send_message(self, obj, msg):

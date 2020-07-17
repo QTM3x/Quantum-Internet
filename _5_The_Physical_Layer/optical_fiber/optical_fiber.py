@@ -6,6 +6,7 @@ from ..qubit_carriers.photon import Photon
 
 class OpticalFiber(object):
     def __init__(self, node1, node2, length=1):
+        print("creating new optical fiber")
         self.global_state = global_state_container.state
 #         self.id = None
         # The length of the fiber.

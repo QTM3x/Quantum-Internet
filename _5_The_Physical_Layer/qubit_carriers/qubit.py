@@ -6,6 +6,7 @@ from common.global_state_container import global_state_container
 
 class Qubit(object):
     def __init__(self, parent_hardware, decoherence_time=1):
+        print("creating new qubit")
         self.global_state = global_state_container.state
         self.id = self.global_state.create_qubit()
         self.decoherence_time = decoherence_time
