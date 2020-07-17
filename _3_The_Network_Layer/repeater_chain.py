@@ -18,6 +18,9 @@ class RepeaterChain(object):
                 self.repeaters[i].connect_right_cable(new_cable)
             if i > 0:
                 self.repeaters[i].connect_left_cable(self.repeaters[i-1].right_cable)
+            # after a repeater is connected, let the network
+            # layer give in a network Id.
+            self.assign_networkId(self.repeaters[i])
 
     def attempt_swap(self, repeater):
         #ask repeater to do a swap
@@ -30,11 +33,11 @@ class RepeaterChain(object):
         if self.repeaters[0].left_cable == None: # in the future choose where to connect in a better way
             new_cable = Cable(endnode, self.repeaters[0])
             endnode.connect_cable(new_cable) 
-            self.repeaters[0].connect_left_cable(endnode.cable)
+            self.repeaters[0].connect_left_cable(new_cable)
         else:
             new_cable = cable(self.repeaters[self.length-1], endnode)
             self.repeaters[self.length-1].connect_right_cable(new_cable) 
-            endnode.connect_cable(self.repeaters[self.length-1].right_cable)
+            endnode.connect_cable(new_cable)
         self.assign_networkId(endnode)
 
     def assign_networkId(self, node):
