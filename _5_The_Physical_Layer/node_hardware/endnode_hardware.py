@@ -65,14 +65,6 @@ class EndnodeHardware(object):
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
 
-    def unload_qubit_from_photon(self, qubit, photon):
-        # swaps the state of the photon and the local qubit 
-        # (the local qubit should be initialized to |0>. The initialization 
-        # can be noisy). 
-        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
-        new_state = SWAP * self.global_state.state * SWAP.dag()
-        self.global_state.update_state(new_state)
-
     def send_photon(self, photon, fiber):
         fiber.carry_photon(photon)
 
@@ -82,6 +74,19 @@ class EndnodeHardware(object):
         # The repeaterHardware chooses a (physical) qubit on which to unload the 
         # qubit carried on the photon.
         self.unload_qubit_from_photon(qubit, photon)
+        
+    def unload_qubit_from_photon(self, qubit, photon):
+        # swaps the state of the photon and the local qubit 
+        # (the local qubit should be initialized to |0>. The initialization 
+        # can be noisy). 
+        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
+        new_state = SWAP * self.global_state.state * SWAP.dag()
+        self.global_state.update_state(new_state)
+        # notify the layers above that a qubit was received.
+        msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
+               'sender' : self.fiber.node2 if self == self.fiber.node1 else self.fiber.node1, 
+               'receiver' : self}
+        self.send_message(self.parent_endnode, msg)
 
     def attempt_link_creation(self, remote_repeater):
         # remote is a repeater object.

@@ -8,12 +8,11 @@ class Application(object): # this code runs on the user's PQC (personal quantum 
         print("creating new application")
         self.quantum_internet = None
         self.username = username
-        # endnode is the node the application is running on
-        self.endnode = Endnode() 
+        self.endnode = Endnode()
+        self.endnode.parent_application = self
 
-    def send_qubit(qubit, remote_user):
-        # check if we have a link with receiverId
-        # if we don't have one, request one
-        self.quantum_intenet.request_link("Bob")
-        # send the classical bits to Bob
-#         qInternet.text("Bob", "bits are " + ...)
+    def send_qubit(self, qubit, remote_user):
+        self.quantum_internet.send_qubit(qubit, self.username, remote_user)
+
+    def receive_qubit(self, qubit):
+        pass

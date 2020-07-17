@@ -28,6 +28,9 @@ class QuantumInternet(object):
         self.repeater_chain.connect(application.endnode)
         self.user_table.update({application.username : application})
         print("new user added to user table:", self.user_table)
+        
+    def send_qubit(self, qubit, sender_username, receiver_username):
+        return
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)

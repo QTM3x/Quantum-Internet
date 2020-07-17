@@ -22,16 +22,9 @@ class RepeaterChain(object):
             if i > 0:
                 self.repeaters[i].connect_left_cable(self.repeaters[i-1].right_cable)
             # after a repeater is connected, let the network
-            # layer give in a network Id.
+            # layer give it a network Id.
             self.assign_networkId(self.repeaters[i])
             print("assigned net id", self.repeaters[i].netId)
-
-    def attempt_swap(self, repeater):
-        #ask repeater to do a swap
-        repeater.attempt_swap() #specify the links to swap#
-
-    def attempt_link_creation(self, repeater1, repeater2):
-        repeater1.attempt_link_creation(repeater2)
 
     def connect(self, endnode): #endnode is a link layer object
         print("connecting endnode to repeater chain")
@@ -44,6 +37,13 @@ class RepeaterChain(object):
             self.repeaters[self.length-1].connect_right_cable(new_cable) 
             endnode.connect_cable(new_cable)
         self.assign_networkId(endnode)
+
+    def attempt_swap(self, repeater):
+        #ask repeater to do a swap
+        repeater.attempt_swap() #specify the links to swap#
+
+    def attempt_link_creation(self, repeater1, repeater2):
+        repeater1.attempt_link_creation(repeater2)
 
     def assign_networkId(self, node):
         if type(node).__name__ == "Endnode":

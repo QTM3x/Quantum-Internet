@@ -11,6 +11,7 @@ class Endnode(object):
         self.hardware = EndnodeHardware(self)
         self.link = None
         self.cable = None
+        self.parent_application = None
         
     def connect_cable(self, cable):
         print("connecting cable in endnode")
@@ -34,26 +35,29 @@ class Endnode(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
-        if msg['msg'] == "entanglement swapping done":
-            # update connections table
-            self.handle_swapSuccess(..., ...)
-            # retitle the message and forward it.
-            # Note that the msg contains two measurement results.
-            msg['msg'] = "entanglement swapping corrections"
-            self.sendMessage(remote_epeater, msg)
-        elif msg['msg'] == "entanglement swapping corrections":
-            measurement_result1 = msg['measurement_result1']
-            measurement_result2 = msg['measurement_result2']
-            # assume we have received the qubit already.
-            # ask the repeaterHardware to apply corrections.
-            self.hardware.apply_swap_corrections(qubitId,
-                                                       measurement_result1, 
-                                                       measurement_result2)
-        elif msg['msg'] == "entanglement swapping corrections applied":
-            # update connections table
-            self.handle_swap_success(..., ...)
-        else:
-            print("received unknown message")
+#         if msg['msg'] == "entanglement swapping done":
+#             # update connections table
+#             self.handle_swapSuccess(..., ...)
+#             # retitle the message and forward it.
+#             # Note that the msg contains two measurement results.
+#             msg['msg'] = "entanglement swapping corrections"
+#             self.sendMessage(remote_epeater, msg)
+#         elif msg['msg'] == "entanglement swapping corrections":
+#             measurement_result1 = msg['measurement_result1']
+#             measurement_result2 = msg['measurement_result2']
+#             # assume we have received the qubit already.
+#             # ask the repeaterHardware to apply corrections.
+#             self.hardware.apply_swap_corrections(qubitId,
+#                                                        measurement_result1, 
+#                                                        measurement_result2)
+#         elif msg['msg'] == "entanglement swapping corrections applied":
+#             # update connections table
+#             self.handle_swap_success(..., ...)
+#         else:
+#             print("received unknown message")
+        if msg['msg'] == "received qubit":
+            self.parent_application.receive_qubit()
+            pass
 
     def handle_link_creation_success(self, other):
         self.links = other

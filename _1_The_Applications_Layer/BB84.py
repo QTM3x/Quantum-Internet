@@ -17,30 +17,39 @@ class BB84(Application):
     def send_qubit(self, qubit, remote_user):
         super().send_qubit(self, qubit, remote_user)
 
-    def receive_qubit(qubit): # a state has been teleported onto a local qubit.
-        measure # that's why you need to create an endNode object in the link layer.
-        pass
+    def receive_qubit(self, qubit): # a state has been teleported onto a local qubit.
+        print("received qubit", qubit)
+        super().receive_qubit(qubit)
+        # measure
+        return
+
+    def send_bases(self, remote_user):
+        msg = {'msg' : "forward to user",  # this is the standard. Document it somewhere.
+               'sender' : self.username, 
+               'receiver' : remoteUser,
+               'type' : "basis bits",
+               'data' : self.basis_bits}
+        self.send_message(self.quantum_internet, msg)
+        
+    def receive_bases(self, bases):
+        for i in range(len(bases)):
+            if bases[i] == self.basis_bits[i]:
+                self.key_bits.append(self.prekey_bits[i])
+        self.handle_exchange_complete()
 
     def initiate_key_exchange(self, remote_user, n=10):
         # check that the user is connected to the network.
         if not self.quantum_internet.check_IsOnline(remote_user):
+            print("user", remote_user, "is not connected to the network.")
             return
         self.basis_bits = self.randomBits(n)
         self.prekey_bits = self.randomBits(n)
         for (prekey,basis) in zip(prekey_bits,basis_bits):
             if basis == 0:
-                self.send_qubit(basis(2,prekey))
+                self.send_qubit(basis(2,prekey), remote_user)
             else:
-                self.send_qubit(H * basis(2,prekey))
+                self.send_qubit(H * basis(2,prekey), remote_user)
             # wait for the remoteUser to acknowledge receipt and measurement
-
-    def send_bases(self, remote_user):
-        msg = {'msg' : "forward to user",  # this is the standard. Document it somewhere.
-               'sender' : this.username, 
-               'receiver' : remoteUser,
-               'type' : "basis bits",
-               'data' : this.basis_bits}
-        self.send_message(self.quantum_internet, msg)
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)
@@ -53,12 +62,6 @@ class BB84(Application):
                     self.send_bases(msg['sender'])
             if msg['type'] == "qubits received":
                 self.send_bases(msg['sender'])
-
-    def receive_bases(self, bases):
-        for i in range(len(bases)):
-            if bases[i] == this.basis_bits[i]:
-                this.key_bits.append(this.prekey_bits[i])
-        self.handle_exchange_complete()
 
     def handle_exchange_complete(self):
         print("Key exchange complete:", key)
