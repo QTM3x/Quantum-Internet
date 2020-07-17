@@ -1,24 +1,31 @@
+import sys
 
-from ../5_The_Physical_Layer import EndnodeHardware
+sys.path.append("..")
+from _5_The_Physical_Layer.node_hardware.endnode_hardware import EndnodeHardware
 print("imported EndnodeHardware object", EndnodeHardware)
 
 class Endnode(object):
     def __init__(self):
         print("creating new endnode")
         self.netId = None
-        self.endnode_hardware = EndnodeHardware(self)
+        self.hardware = EndnodeHardware(self)
         self.link = None
         self.cable = None
+        
+    def connect_cable(self, cable):
+        print("connecting cable in endnode")
+        self.cable = cable
+        self.hardware.connect_fiber(cable.optical_fiber)
 
     # attempt to create link with another repeater
     def attempt_link_creation(self, remote_repeater):
         # attempt link creation on the next free qubit
-        self.repeater_hardware.attempt_link_creation(remote_repeater)
+        self.hardware.attempt_link_creation(remote_repeater)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
     def attempt_distillation(self, links):
-        self.repeater_hardware.attempt_distillation()
+        self.hardware.attempt_distillation()
 
     # this function emits a signal to the link layer (which here takes the form 
     # of software running on the repeater).
@@ -39,7 +46,7 @@ class Endnode(object):
             measurement_result2 = msg['measurement_result2']
             # assume we have received the qubit already.
             # ask the repeaterHardware to apply corrections.
-            self.repeater_hardware.apply_swap_corrections(qubitId,
+            self.hardware.apply_swap_corrections(qubitId,
                                                        measurement_result1, 
                                                        measurement_result2)
         elif msg['msg'] == "entanglement swapping corrections applied":
@@ -58,7 +65,7 @@ class Endnode(object):
             
         if slotAvailable:
             # create the link
-            self.attempt_link_creation(#specify nodes here#)
+            self.attempt_link_creation() #specify nodes here#
 
     def request_link(self, other):
         msg = packLinkRequest(self.netId)

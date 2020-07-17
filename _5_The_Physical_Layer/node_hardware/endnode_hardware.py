@@ -1,18 +1,21 @@
-
+import sys
 import random
 from qutip import *
 
-from ./ import qubit
+sys.path.append("..")
+from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
+print("imported Qubit object", Qubit)
+
 from common.global_state_container import global_state_container
 
-class endnode_hardware(object):
+class EndnodeHardware(object):
     def __init__(self, parent_endnode, qubits=1):
         print("creating endnode hardware")
 #         self.id = None
         self.parent_endnode = parent_endnode
         self.global_state = global_state_container
         self.qubit = Qubit(self)
-        self.optical_fiber = None                                          
+        self.fiber = None                                          
 #         self.memoryQubits = []
 
     def connect_fiber(self, fiber):
@@ -23,13 +26,14 @@ class endnode_hardware(object):
         obj.handleMessage(msg)
 
     def handle_message(self, msg):
-        msg = msg.split('-')
-        # id of the sender
-        id = msg[0]
-        if msg[1] === "decohered":
-            # notify the link layer
-            msg2 = packLinkExpired(#specify which link expired#)
-            self.send_message(self.parent_endnode, msg2)
+#         msg = msg.split('-')
+#         # id of the sender
+#         id = msg[0]
+#         if msg[1] == "decohered":
+#             # notify the link layer
+#             msg2 = packLinkExpired(#specify which link expired#)
+#             self.send_message(self.parent_endnode, msg2)
+        pass
 
     def measure(self, qubit, basis = "01"):
         # https://inst.eecs.berkeley.edu/~cs191/fa14/lectures/lecture10.pdf

@@ -40,13 +40,13 @@ class RepeaterChain(object):
             endnode.connect_cable(new_cable) 
             self.repeaters[0].connect_left_cable(new_cable)
         else:
-            new_cable = cable(self.repeaters[self.length-1], endnode)
+            new_cable = Cable(self.repeaters[self.length-1], endnode)
             self.repeaters[self.length-1].connect_right_cable(new_cable) 
             endnode.connect_cable(new_cable)
         self.assign_networkId(endnode)
 
     def assign_networkId(self, node):
-        if type(node).__name__ == "EndNode":
+        if type(node).__name__ == "Endnode":
             if node.cable == None:
                 print("endnode is not wired to network.")
             elif node.cable == self.repeaters[0].left_cable:

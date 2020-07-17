@@ -6,8 +6,8 @@ sys.path.append(".")
 from .application import Application
 
 class BB84(Application):
-    def __init__(self, quantum_internet, username):
-        super().__init__(quantum_internet, username)
+    def __init__(self, username):
+        super().__init__(username)
         self.RNG = SystemRandom() # a high quality random number generator
         self.basis_bits = []
         self.prekey_bits = []

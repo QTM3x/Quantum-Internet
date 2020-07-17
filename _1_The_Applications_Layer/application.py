@@ -1,11 +1,15 @@
+import sys
+
+sys.path.append("..")
+from _4_The_Link_Layer.endnode import Endnode
 
 class Application(object): # this code runs on the user's PQC (personal quantum computer)
     def __init__(self, username = None):
         print("creating new application")
         self.quantum_internet = None
-        this.username = username
+        self.username = username
         # endnode is the node the application is running on
-        self.endode = Endnode() 
+        self.endnode = Endnode() 
 
     def send_qubit(qubit, remote_user):
         # check if we have a link with receiverId

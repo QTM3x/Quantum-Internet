@@ -27,7 +27,7 @@ class QuantumInternet(object):
         application.quantum_internet = self
         self.repeater_chain.connect(application.endnode)
         self.user_table.update({application.username : application})
-        console.log("new user added to user table:", self.user_table)
+        print("new user added to user table:", self.user_table)
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)

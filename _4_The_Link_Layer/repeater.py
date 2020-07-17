@@ -9,7 +9,7 @@ class Repeater(object):
         print("creating new repeater")
         self.netId = None
         self.parent_repeater_chain = parent_repeater_chain
-        self.repeater_hardware = RepeaterHardware(self)
+        self.hardware = RepeaterHardware(self)
         self.left_link = None
         self.right_link = None
         self.left_cable = None
@@ -18,26 +18,26 @@ class Repeater(object):
     def connect_right_cable(self, cable):
         print("connecting right cable in repeater")
         self.right_cable = cable
-        self.repeater_hardware.connect_right_fiber(cable.optical_fiber)
+        self.hardware.connect_right_fiber(cable.optical_fiber)
         
     def connect_left_cable(self, cable):
         print("connecting left cable in repeater")
         self.left_cable = cable
-        self.repeater_hardware.connect_left_fiber(cable.optical_fiber)
+        self.hardware.connect_left_fiber(cable.optical_fiber)
     
     def attemptSwap(self, left_link, right_link):
-        self.repeater_hardware.swap_entanglement()
+        self.hardware.swap_entanglement()
         # wait for repeaterHardware to tell us when/if the swap is done.
 
     # attempt to create link with another repeater
     def attempt_link_creation(self, remote_repeater):
         # attempt link creation on the next free qubit
-        self.repeater_hardware.attempt_link_creation(remote_repeater)
+        self.hardware.attempt_link_creation(remote_repeater)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
     def attempt_distillation(self, links):
-        self.repeater_hardware.attempt_distillation()
+        self.hardware.attempt_distillation()
 
     # this function emits a signal to the link layer (which here takes the form 
     # of software running on the repeater).
@@ -84,7 +84,7 @@ class Repeater(object):
             measurement_result2 = msg['measurement_result2']
             # assume we have received the qubit already.
             # ask the repeaterHardware to apply corrections.
-            self.repeater_hardware.apply_swap_corrections(qubitId,
+            self.hardware.apply_swap_corrections(qubitId,
                                                        measurement_result1, 
                                                        measurement_result2)
         elif msg['msg'] == "entanglement swapping corrections applied":
