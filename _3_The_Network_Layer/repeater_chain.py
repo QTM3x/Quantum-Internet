@@ -52,7 +52,7 @@ class RepeaterChain(object):
             elif node.cable == self.repeaters[0].left_cable:
                 node.netId = 0
             elif node.cable == self.repeaters[self.length-1].right_cable:
-                node.netId = self.length
+                node.netId = self.length + 1
         elif type(node).__name__ == "Repeater":
             if node.right_cable == None and node.left_cable == None:
                 print("repeater is not wired to network")
