@@ -1,15 +1,13 @@
 import sys
-
+import math
 import random
 from qutip import *
 
-# sys.path.append("../..")
+sys.path.append("../..")
 from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
 print("imported Qubit object")
 
-# sys.path.append("../..")
 from common.global_state_container import global_state_container
-print("imported global_state_container global variable")
 
 class RepeaterHardware(object):
     def __init__(self, parent_repeater, qubits=2):
@@ -18,17 +16,17 @@ class RepeaterHardware(object):
         self.global_state = global_state_container.state
         self.left_qubit = Qubit(self)
         self.right_qubit = Qubit(self)
-        self.left_optical_fiber = None
-        self.right_optical_fiber = None                                         
+        self.left_fiber = None
+        self.right_fiber = None                                         
 #         self.memoryQubits = []
 
     def connect_right_fiber(self, fiber):
         print("connecting right optical fiber")
-        self.right_optical_fiber = fiber
+        self.right_fiber = fiber
     
     def connect_left_fiber(self, fiber):
         print("connecting left optical fiber")
-        self.left_optical_fiber = fiber
+        self.left_fiber = fiber
     
     def send_message(self, obj, msg):
         obj.handle_message(msg)
@@ -50,8 +48,8 @@ class RepeaterHardware(object):
         # Do stuff to the global state container's state.
         CNOT = cnot(N=self.global_state.N, control=self.left_qubit[0].id, target=self.right_qubit[0].id)
         new_state = CNOT * self.global_state.state * CNOT.dag()
-        Z180 = rz(180, N=self.global_state.N, target=self.left_qubit[0].id)
-        Y90  = ry(90, N=self.global_state.N, target=self.left_qubit[0].id)
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit[0].id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit[0].id)
         H = Y90 * Z180
         new_state = H * new_state * H.dag()
         self.global_state.update_state(new_state)
@@ -70,12 +68,12 @@ class RepeaterHardware(object):
         if measurement_result1 == 0 and measurement_result1 == 0:
             return
         elif measurement_result1 == 0 and measurement_result1 == 1:
-            correction = rz(180, N=self.global_state.N, target=qubitId)
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
         elif measurement_result1 == 1 and measurement_result1 == 0:
-            correction = rx(180, N=self.global_state.N, target=qubitId)
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
         elif measurement_result1 == 1 and measurement_result1 == 1:
-            correction = rz(180, N=self.global_state.N, target=qubitId)
-            correction = rx(180, N=self.global_state.N, target=qubitId) * correction
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId) * correction
         new_state = correction * self.global_state.state * correction.dag()
         self.global_state.update_state(new_state)
         msg = {'msg' : "entanglement swapping corrections applied"}
@@ -87,10 +85,10 @@ class RepeaterHardware(object):
         # construct the projectors
         P0 = tensor([identity(2) for _ in range(qubit.Id)] + 
                     basis(2,0) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, self.global_state.N)])
+                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
         P1 = tensor([identity(2) for _ in range(qubit.Id)] + 
                     basis(2,1) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, self.global_state.N)])
+                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
         # compute the probabilities of the 1 and 0 outcomes
         p0 = (P0 * rho).tr()
         p1 = (P1 * rho).tr() # check that p1 = 1 - p0
@@ -107,7 +105,7 @@ class RepeaterHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
-        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
         newState = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(newState)
 
@@ -115,19 +113,27 @@ class RepeaterHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the local qubit should be initialized to |0>. The initialization 
         # can be noisy). 
-        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
+        # notify the layers above that a qubit was received.
+        fiber = self.left_fiber if qubit == self.left_qubit else self.right_fiber
+        msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
+               'sender' : fiber.node2 if self == fiber.node1 else fiber.node1, 
+               'receiver' : self}
+        if self.parent_repeater:
+            self.send_message(self.parent_repeater, msg)
 
-    def send_photon(self, photon, fiber):
-        fiber.carry_photon(photon)
+    def send_photon_through_fiber(self, photon, fiber):
+        fiber.carry_photon(photon, self)
 
-    def receive_photon(self, photon):
+    def receive_photon_from_fiber(self, photon, fiber):
         print("repeater hardware receiving photon")
         # This function is called by an optical fiber to
         # alert the repeaterHardware to receive the incoming photon.
         # The repeaterHardware chooses a (physical) qubit on which to unload the 
         # qubit carried on the photon.
+        qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
         self.unload_qubit_from_photon(qubit, photon)
 
     def attempt_link_creation(self, remote_repeater):

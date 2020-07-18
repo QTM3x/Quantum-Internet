@@ -30,4 +30,4 @@ class OpticalFiber(object):
         self.global_state.update_state(new_state)
         # send output state to the receiver
         receiver = self.node2 if sender == self.node1 else self.node1
-        receiver.receive_photon(photon)
+        receiver.receive_photon_from_fiber(photon, self)

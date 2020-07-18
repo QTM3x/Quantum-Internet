@@ -42,10 +42,10 @@ class EndnodeHardware(object):
         # construct the projectors
         P0 = tensor([identity(2) for _ in range(qubit.Id)] + 
                     basis(2,0) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, self.global_state.N)])
+                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
         P1 = tensor([identity(2) for _ in range(qubit.Id)] + 
                     basis(2,1) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, self.global_state.N)])
+                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
         # compute the probabilities of the 1 and 0 outcomes
         p0 = (P0 * rho).tr()
         p1 = (P1 * rho).tr() # check that p1 = 1 - p0
@@ -62,14 +62,14 @@ class EndnodeHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
-        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
 
-    def send_photon(self, photon, fiber):
+    def send_photon_through_fiber(self, photon, fiber):
         fiber.carry_photon(photon, self)
 
-    def receive_photon(self, photon):
+    def receive_photon_from_fiber(self, photon, fiber):
         print("endnode hardware receiving photon")
         # This function is called by an optical fiber to
         # alert the repeaterHardware to receive the incoming photon.
@@ -100,7 +100,7 @@ class EndnodeHardware(object):
         theOpticalFiber = self.leftOpticalFiber if self.parentEndnode.id > remote.id else self.rightOpticalFiber
         thePhoton = theOpticalFiber.photon12 if self.id > remote.id else theOpticalFiber.photon12
         self.load_qubit_on_photon(theQubit, thePhoton)
-        self.send_photon(thePhoton, theOpticalFiber)
+        self.send_photon_through_fiber(thePhoton, theOpticalFiber)
         # 3. (for later) check somehow that we have a good link.
         # support for heralding stations and photon transmission, etc.
 
