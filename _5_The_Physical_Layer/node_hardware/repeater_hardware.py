@@ -123,6 +123,7 @@ class RepeaterHardware(object):
         fiber.carry_photon(photon)
 
     def receive_photon(self, photon):
+        print("repeater hardware receiving photon")
         # This function is called by an optical fiber to
         # alert the repeaterHardware to receive the incoming photon.
         # The repeaterHardware chooses a (physical) qubit on which to unload the 

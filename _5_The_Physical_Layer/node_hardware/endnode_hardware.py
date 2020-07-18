@@ -2,7 +2,7 @@ import sys
 import random
 from qutip import *
 
-sys.path.append("..")
+sys.path.append("../..")
 from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
 print("imported Qubit object", Qubit)
 
@@ -69,6 +69,7 @@ class EndnodeHardware(object):
         fiber.carry_photon(photon)
 
     def receive_photon(self, photon):
+        print("endnode hardware receiving photon")
         # This function is called by an optical fiber to
         # alert the repeaterHardware to receive the incoming photon.
         # The repeaterHardware chooses a (physical) qubit on which to unload the 
