@@ -5,11 +5,11 @@ from common.global_state_container import global_state_container
 print("imported global_state_container module", global_state_container)
 
 class Photon(object):
-    def __init__(self, parent_optical_fiber):
+    def __init__(self, parent_optical_fiber=None):
         print("creating new photon")
         self.global_state = global_state_container.state
         self.id = self.global_state.create_qubit()
-        self.parent_optical_fiber = parent_optical_fiber
+#         self.parent_optical_fiber = parent_optical_fiber
         
     # reset the state of the photon to the pure |0> state. 
     # This should be done everytime the qubit is used, 

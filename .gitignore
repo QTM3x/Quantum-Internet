@@ -4,3 +4,4 @@
 *~
 #To ignore jupyter checkpoint folders
 .ipynb_checkpoints
+*.pyc

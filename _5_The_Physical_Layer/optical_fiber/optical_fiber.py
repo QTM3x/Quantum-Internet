@@ -1,4 +1,6 @@
 import sys
+import math
+from qutip import *
 
 sys.path.append("..")
 from common.global_state_container import global_state_container
@@ -16,14 +18,16 @@ class OpticalFiber(object):
         # etc. For now it's a repeaterHardware object for simplicity.
         self.node1 = node1
         self.node2 = node2
-        self.photon12 = Photon(self)   # this is the photon going from node 1 to node 2
-        self.photon21 = Photon(self)
+#         self.photon12 = Photon(self)   # this is the photon going from node 1 to node 2
+#         self.photon21 = Photon(self)
 
-    def carry_photon(self, photon, sender, receiver):  # Here there will be a quantum channel applied to the state
+    def carry_photon(self, photon, sender):  # Here there will be a quantum channel applied to the state
+        # sender is a node hardware object.
         # apply channel here
         # for now make it the identity channel
-        gate = tensor([identity(2) for _ in range(self.global_state.N)])
+        gate = tensor([identity(2) for _ in range(int(math.log2(self.global_state.state.shape[0])))])
         new_state = gate * self.global_state.state * gate.dag()  # for now the map is a identity unitary gate
         self.global_state.update_state(new_state)
         # send output state to the receiver
-        receiver.receive_photon()
+        receiver = self.node2 if sender == self.node1 else self.node1
+        receiver.receive_photon(photon)

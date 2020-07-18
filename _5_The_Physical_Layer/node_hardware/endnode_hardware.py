@@ -1,4 +1,5 @@
 import sys
+import math
 import random
 from qutip import *
 
@@ -13,14 +14,14 @@ class EndnodeHardware(object):
         print("creating endnode hardware")
 #         self.id = None
         self.parent_endnode = parent_endnode
-        self.global_state = global_state_container
+        self.global_state = global_state_container.state
         self.qubit = Qubit(self)
         self.fiber = None                                          
 #         self.memoryQubits = []
 
     def connect_fiber(self, fiber):
         print("connecting fiber")
-        self.optical_fiber = fiber
+        self.fiber = fiber
 
     def send_message(self, obj, msg):
         obj.handleMessage(msg)
@@ -66,7 +67,7 @@ class EndnodeHardware(object):
         self.global_state.update_state(new_state)
 
     def send_photon(self, photon, fiber):
-        fiber.carry_photon(photon)
+        fiber.carry_photon(photon, self)
 
     def receive_photon(self, photon):
         print("endnode hardware receiving photon")
@@ -74,20 +75,21 @@ class EndnodeHardware(object):
         # alert the repeaterHardware to receive the incoming photon.
         # The repeaterHardware chooses a (physical) qubit on which to unload the 
         # qubit carried on the photon.
-        self.unload_qubit_from_photon(qubit, photon)
+        self.unload_qubit_from_photon(self.qubit, photon) # confusing names.
         
     def unload_qubit_from_photon(self, qubit, photon):
         # swaps the state of the photon and the local qubit 
         # (the local qubit should be initialized to |0>. The initialization 
         # can be noisy). 
-        SWAP = swap(N=self.global_state.N, targets=[qubit.id, photon.id])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.
         msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
                'sender' : self.fiber.node2 if self == self.fiber.node1 else self.fiber.node1, 
                'receiver' : self}
-        self.send_message(self.parent_endnode, msg)
+        if self.parent_endnode:
+            self.send_message(self.parent_endnode, msg)
 
     def attempt_link_creation(self, remote_repeater):
         # remote is a repeater object.
