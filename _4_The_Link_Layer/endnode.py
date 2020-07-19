@@ -1,22 +1,33 @@
+import sys
 
-from ../5_The_Physical_Layer import EndnodeHardware
+sys.path.append("..")
+from _5_The_Physical_Layer.node_hardware.endnode_hardware import EndnodeHardware
+print("imported EndnodeHardware object", EndnodeHardware)
 
 class Endnode(object):
     def __init__(self):
+        print("creating new endnode")
         self.netId = None
-        self.endnode_hardware = EndnodeHardware(self)
+        self.hardware = EndnodeHardware(self)
         self.link = None
         self.cable = None
+        self.parent_application = None
+        
+    def connect_cable(self, cable):
+        print("connecting cable in endnode")
+        self.cable = cable
+        self.hardware.connect_fiber(cable.optical_fiber)
+        cable.connect_node(self)
 
     # attempt to create link with another repeater
-    def attempt_link_creation(self, remote_repeater):
+    def attempt_link_creation(self, node):
         # attempt link creation on the next free qubit
-        self.repeater_hardware.attempt_link_creation(remote_repeater)
+        self.hardware.attempt_link_creation(node)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
     def attempt_distillation(self, links):
-        self.repeater_hardware.attempt_distillation()
+        self.hardware.attempt_distillation()
 
     # this function emits a signal to the link layer (which here takes the form 
     # of software running on the repeater).
@@ -25,26 +36,29 @@ class Endnode(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
-        if msg['msg'] == "entanglement swapping done":
-            # update connections table
-            self.handle_swapSuccess(..., ...)
-            # retitle the message and forward it.
-            # Note that the msg contains two measurement results.
-            msg['msg'] = "entanglement swapping corrections"
-            self.sendMessage(remote_epeater, msg)
-        elif msg['msg'] == "entanglement swapping corrections":
-            measurement_result1 = msg['measurement_result1']
-            measurement_result2 = msg['measurement_result2']
-            # assume we have received the qubit already.
-            # ask the repeaterHardware to apply corrections.
-            self.repeater_hardware.apply_swap_corrections(qubitId,
-                                                       measurement_result1, 
-                                                       measurement_result2)
-        elif msg['msg'] == "entanglement swapping corrections applied":
-            # update connections table
-            self.handle_swap_success(..., ...)
-        else:
-            print("received unknown message")
+#         if msg['msg'] == "entanglement swapping done":
+#             # update connections table
+#             self.handle_swapSuccess(..., ...)
+#             # retitle the message and forward it.
+#             # Note that the msg contains two measurement results.
+#             msg['msg'] = "entanglement swapping corrections"
+#             self.sendMessage(remote_epeater, msg)
+#         elif msg['msg'] == "entanglement swapping corrections":
+#             measurement_result1 = msg['measurement_result1']
+#             measurement_result2 = msg['measurement_result2']
+#             # assume we have received the qubit already.
+#             # ask the repeaterHardware to apply corrections.
+#             self.hardware.apply_swap_corrections(qubitId,
+#                                                        measurement_result1, 
+#                                                        measurement_result2)
+#         elif msg['msg'] == "entanglement swapping corrections applied":
+#             # update connections table
+#             self.handle_swap_success(..., ...)
+#         else:
+#             print("received unknown message")
+        if msg['msg'] == "received qubit":
+            self.parent_application.receive_qubit()
+            pass
 
     def handle_link_creation_success(self, other):
         self.links = other
@@ -56,7 +70,7 @@ class Endnode(object):
             
         if slotAvailable:
             # create the link
-            self.attempt_link_creation(#specify nodes here#)
+            self.attempt_link_creation() #specify nodes here#
 
     def request_link(self, other):
         msg = packLinkRequest(self.netId)

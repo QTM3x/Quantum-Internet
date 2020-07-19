@@ -6,6 +6,7 @@ from common.global_state_container import global_state_container
 
 class QuantumInternet(object):
     def __init__(self, length):
+        print("creating quantum internet")
 #         self.parentApplication = parentApplication
         global_state_container.init()
         self.repeater_chain = RepeaterChain(length)
@@ -22,9 +23,14 @@ class QuantumInternet(object):
         return username in self.user_table
         
     def connect(self, application):
+        print("connecting application (endnode) to quantum internet")
         application.quantum_internet = self
         self.repeater_chain.connect(application.endnode)
         self.user_table.update({application.username : application})
+        print("new user added to user table:", self.user_table)
+        
+    def send_qubit(self, qubit, sender_username, receiver_username):
+        return
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)

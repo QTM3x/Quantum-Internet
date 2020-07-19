@@ -6,8 +6,9 @@ from common.global_state_container import global_state_container
 
 class Qubit(object):
     def __init__(self, parent_hardware, decoherence_time=1):
+        print("creating new qubit")
         self.global_state = global_state_container.state
-        self.id = self.global_state.create_qubit()
+        self.id = self.global_state.create_qubit(self)
         self.decoherence_time = decoherence_time
         self.parent_hardware = parent_hardware
         
@@ -19,7 +20,11 @@ class Qubit(object):
         # the state of the other qubits. The other qubit becomes 
         # entangled with the environment, which we generally 
         # don't have access to.
-        pass 
+        # can we reset a qubit by destroying in then re-initializing it?
+        pass
+    
+    def destroy(self):
+        pass
 
 
 #     def applyChannel(self, channel):
