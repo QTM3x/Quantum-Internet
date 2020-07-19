@@ -67,7 +67,7 @@ class EndnodeHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
-        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id, photon.id])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
 
@@ -87,7 +87,7 @@ class EndnodeHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the local qubit should be initialized to |0>. The initialization 
         # can be noisy). 
-        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id, photon.id])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.
@@ -105,11 +105,12 @@ class EndnodeHardware(object):
         # 2. send the photon to the remote receiver.
         self.qubit.reset()
         photon = Photon()
-        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id-1)
-        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id-1)
+        print(self.qubit.id, photon.id, self.global_state.state)
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
         H = Y90 * Z180
         new_state = H * self.global_state.state * H.dag()
-        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.qubit.id-1, target=photon.id-1)
+        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.qubit.id, target=photon.id)
         new_state = CNOT * new_state * CNOT.dag()
         self.global_state.update_state(new_state)
         self.send_photon_through_fiber(photon, self.fiber)

@@ -86,12 +86,12 @@ class RepeaterHardware(object):
         print("measuring qubit in repeater hardware")
         rho = self.global_state.state
         # construct the projectors
-        P0 = tensor([identity(2) for _ in range(qubit.Id)] + 
+        P0 = tensor([identity(2) for _ in range(qubit.id)] + 
                     basis(2,0) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
-        P1 = tensor([identity(2) for _ in range(qubit.Id)] + 
+                    [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
+        P1 = tensor([identity(2) for _ in range(qubit.id)] + 
                     basis(2,1) * basis(2,0).dag() + 
-                    [identity(2) for _ in range(qubit.Id + 1, int(math.log2(self.global_state.state.shape[0])))])
+                    [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
         # compute the probabilities of the 1 and 0 outcomes
         p0 = (P0 * rho).tr()
         p1 = (P1 * rho).tr() # check that p1 = 1 - p0
@@ -109,7 +109,7 @@ class RepeaterHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
-        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id, photon.id])
         newState = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(newState)
 
@@ -118,7 +118,7 @@ class RepeaterHardware(object):
         # swaps the state of the photon and the local qubit 
         # (the local qubit should be initialized to |0>. The initialization 
         # can be noisy). 
-        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id-1, photon.id-1])
+        SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id, photon.id])
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.

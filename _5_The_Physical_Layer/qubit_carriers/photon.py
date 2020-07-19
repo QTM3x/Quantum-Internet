@@ -8,7 +8,7 @@ class Photon(object):
     def __init__(self, parent_optical_fiber=None):
         print("creating new photon")
         self.global_state = global_state_container.state
-        self.id = self.global_state.create_qubit()
+        self.id = self.global_state.create_qubit(self)
 #         self.parent_optical_fiber = parent_optical_fiber
         
     # reset the state of the photon to the pure |0> state. 
@@ -26,6 +26,6 @@ class Photon(object):
         pass 
 
     def destroy(self):
+        print("destroying photon with id", self.id)
         # trace out the photon from the global state.
-        new_state = self.global_state.state.ptrace(self.id-1)
-        self.global_state.update_state(new_state)
+        self.global_state.destroy_qubit(self.id)
