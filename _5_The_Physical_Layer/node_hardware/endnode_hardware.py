@@ -105,7 +105,6 @@ class EndnodeHardware(object):
         # 2. send the photon to the remote receiver.
         self.qubit.reset()
         photon = Photon()
-        print(self.qubit.id, photon.id, self.global_state.state)
         Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
         Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
         H = Y90 * Z180

@@ -31,6 +31,9 @@ class OpticalFiber(object):
                 self.node1 = node_hardware
             else:
                 self.node2 = node_hardware
+                
+    def is_connected(self, node_hardware):
+        return node_hardware == self.node1 or node_hardware == self.node2
 
     def carry_photon(self, photon, sender):  # Here there will be a quantum channel applied to the state
         # sender is a node hardware object.

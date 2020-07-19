@@ -6,6 +6,8 @@ from qutip import *
 sys.path.append("../..")
 from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
 print("imported Qubit object")
+from _5_The_Physical_Layer.qubit_carriers.photon import Photon
+print("imported Photon object")
 
 from common.global_state_container import global_state_container
 
@@ -142,16 +144,31 @@ class RepeaterHardware(object):
         qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
         self.unload_qubit_from_photon(qubit, photon)
 
-    def attempt_link_creation(self, remote_repeater):
+    def attempt_link_creation(self, remote_node):
         # remote is a repeater object.
         # here the physical details of link creation will be implemented:
         # 1. create EPR pair on one of the local qubits and a photon.
         # 2. send the photon to the remote receiver.
-        theQubit = self.left_qubit if self.parent_repeater.netId > remote_repeater.netId else self.rightQubit
-        theOpticalFiber = self.left_optical_fiber if self.parent_repeater.netId > remote_repeater.netId else self.right_optical_fiber
-#         thePhoton = theOpticalFiber.photon12 if self.parent_repeater.netId > remote_repeater.netId else theOpticalFiber.photon12
-        self.load_qubit_on_photon(theQubit, thePhoton)
-        self.send_photon(thePhoton, theOpticalFiber)
+        if self.left_fiber is None:
+            fiber = self.right_fiber
+        elif self.right_fiber is None:
+            fiber = self.left_fiber
+        elif self.left_fiber.is_connected(remote_node):
+            fiber = self.left_fiber
+        else:
+            fiber = self.right_fiber
+#         fiber = self.left_fiber if self.left_fiber.is_connected(remote_node) else self.right_fiber
+        qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
+        qubit.reset()
+        photon = Photon()
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
+        H = Y90 * Z180
+        new_state = H * self.global_state.state * H.dag()
+        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=qubit.id, target=photon.id)
+        new_state = CNOT * new_state * CNOT.dag()
+        self.global_state.update_state(new_state)
+        self.send_photon_through_fiber(photon, fiber)
         # 3. (for later) check somehow that we have a good link.
         # support for heralding stations and photon transmission, etc.
 
