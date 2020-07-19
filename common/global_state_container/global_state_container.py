@@ -12,7 +12,7 @@ from common.GUI import GUI
 def init():
     global state
     state = GlobalState()
-    
+
 
 class GlobalState(object):
     def __init__(self):
@@ -20,6 +20,7 @@ class GlobalState(object):
         GUI.init()
 #         self.M = N - 1 # this is the number of optical fibers
         self.state = None # everything starts in the |000..0> state.
+        self.id_count = 0
         
     def update_state(self, newState):
         self.state = newState
@@ -52,5 +53,5 @@ class GlobalState(object):
         else:
             new_state = tensor(self.state, basis(2,0) * basis(2,0).dag())
         self.update_state(new_state)
-        number_of_qubits = int(math.log2(self.state.shape[0]))
-        return number_of_qubits
+        self.id_count += 1
+        return self.id_count # change this to self.id_count - 1 and adjust the code.

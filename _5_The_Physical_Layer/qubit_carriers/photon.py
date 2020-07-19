@@ -24,3 +24,8 @@ class Photon(object):
         # entangled with the environment, which we generally 
         # don't have access to.
         pass 
+
+    def destroy(self):
+        # trace out the photon from the global state.
+        new_state = self.global_state.state.ptrace(self.id-1)
+        self.global_state.update_state(new_state)

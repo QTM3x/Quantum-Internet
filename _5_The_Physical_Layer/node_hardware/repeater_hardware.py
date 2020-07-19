@@ -48,10 +48,10 @@ class RepeaterHardware(object):
         # apply the right qutip gates. Assume ideal gates at this point while you're
         # building the thing.
         # Do stuff to the global state container's state.
-        CNOT = cnot(N=self.global_state.N, control=self.left_qubit[0].id, target=self.right_qubit[0].id)
+        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.left_qubit.id, target=self.right_qubit.id)
         new_state = CNOT * self.global_state.state * CNOT.dag()
-        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit[0].id)
-        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit[0].id)
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit.id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit.id)
         H = Y90 * Z180
         new_state = H * new_state * H.dag()
         self.global_state.update_state(new_state)
@@ -81,8 +81,9 @@ class RepeaterHardware(object):
         msg = {'msg' : "entanglement swapping corrections applied"}
         self.send_message(self.parent_repeater, msg)
 
-    def measure(self, qubit, basis = "01"):
+    def measure(self, qubit, axis = "01"):
         # https://inst.eecs.berkeley.edu/~cs191/fa14/lectures/lecture10.pdf
+        print("measuring qubit in repeater hardware")
         rho = self.global_state.state
         # construct the projectors
         P0 = tensor([identity(2) for _ in range(qubit.Id)] + 
@@ -104,6 +105,7 @@ class RepeaterHardware(object):
         return result
 
     def load_qubit_on_photon(self, qubit, photon):  # both qubit and photon are qubit objects
+        print("loading data from local qubit onto photon")
         # swaps the state of the photon and the local qubit 
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
@@ -112,6 +114,7 @@ class RepeaterHardware(object):
         self.global_state.update_state(newState)
 
     def unload_qubit_from_photon(self, qubit, photon):
+        print("unloading data from photon onto local qubit")
         # swaps the state of the photon and the local qubit 
         # (the local qubit should be initialized to |0>. The initialization 
         # can be noisy). 
@@ -125,6 +128,7 @@ class RepeaterHardware(object):
                'receiver' : self}
         if self.parent_repeater:
             self.send_message(self.parent_repeater, msg)
+        photon.destroy()
 
     def send_photon_through_fiber(self, photon, fiber):
         fiber.carry_photon(photon, self)
@@ -141,11 +145,11 @@ class RepeaterHardware(object):
     def attempt_link_creation(self, remote_repeater):
         # remote is a repeater object.
         # here the physical details of link creation will be implemented:
-        # 1. create EPR pair. Store one half locally and load the other on a photon.
+        # 1. create EPR pair on one of the local qubits and a photon.
         # 2. send the photon to the remote receiver.
         theQubit = self.left_qubit if self.parent_repeater.netId > remote_repeater.netId else self.rightQubit
         theOpticalFiber = self.left_optical_fiber if self.parent_repeater.netId > remote_repeater.netId else self.right_optical_fiber
-        thePhoton = theOpticalFiber.photon12 if self.parent_repeater.netId > remote_repeater.netId else theOpticalFiber.photon12
+#         thePhoton = theOpticalFiber.photon12 if self.parent_repeater.netId > remote_repeater.netId else theOpticalFiber.photon12
         self.load_qubit_on_photon(theQubit, thePhoton)
         self.send_photon(thePhoton, theOpticalFiber)
         # 3. (for later) check somehow that we have a good link.
