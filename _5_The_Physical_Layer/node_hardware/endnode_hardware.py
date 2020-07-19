@@ -22,6 +22,7 @@ class EndnodeHardware(object):
     def connect_fiber(self, fiber):
         print("connecting fiber")
         self.fiber = fiber
+        fiber.connect_node_hardware(self)
 
     def send_message(self, obj, msg):
         obj.handleMessage(msg)

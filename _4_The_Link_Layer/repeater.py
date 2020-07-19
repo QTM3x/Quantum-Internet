@@ -19,11 +19,13 @@ class Repeater(object):
         print("connecting right cable in repeater")
         self.right_cable = cable
         self.hardware.connect_right_fiber(cable.optical_fiber)
+        cable.connect_node(self)
         
     def connect_left_cable(self, cable):
         print("connecting left cable in repeater")
         self.left_cable = cable
         self.hardware.connect_left_fiber(cable.optical_fiber)
+        cable.connect_node(self)
     
     def attemptSwap(self, left_link, right_link):
         self.hardware.swap_entanglement()

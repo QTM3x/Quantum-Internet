@@ -23,11 +23,13 @@ class RepeaterHardware(object):
     def connect_right_fiber(self, fiber):
         print("connecting right optical fiber")
         self.right_fiber = fiber
-    
+        fiber.connect_node_hardware(self)
+
     def connect_left_fiber(self, fiber):
         print("connecting left optical fiber")
         self.left_fiber = fiber
-    
+        fiber.connect_node_hardware(self)
+
     def send_message(self, obj, msg):
         obj.handle_message(msg)
 

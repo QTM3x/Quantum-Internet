@@ -17,11 +17,12 @@ class Endnode(object):
         print("connecting cable in endnode")
         self.cable = cable
         self.hardware.connect_fiber(cable.optical_fiber)
+        cable.connect_node(self)
 
     # attempt to create link with another repeater
-    def attempt_link_creation(self, remote_repeater):
+    def attempt_link_creation(self, node):
         # attempt link creation on the next free qubit
-        self.hardware.attempt_link_creation(remote_repeater)
+        self.hardware.attempt_link_creation(node)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
