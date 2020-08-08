@@ -19,10 +19,13 @@ class Endnode(object):
         self.hardware.connect_fiber(cable.optical_fiber)
         cable.connect_node(self)
 
+    def teleport_qubit(self):
+        self.hardware.teleport_qubit()
+
     # attempt to create link with another repeater
     def attempt_link_creation(self, node):
         # attempt link creation on the next free qubit
-        self.hardware.attempt_link_creation(node)
+        self.hardware.attempt_link_creation(node.hardware)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
@@ -57,21 +60,44 @@ class Endnode(object):
 #         else:
 #             print("received unknown message")
         if msg['msg'] == "received qubit":
-            self.parent_application.receive_qubit()
-            pass
+            if self.parent_application:
+                self.parent_application.receive_qubit()
+        elif msg['msg'] == "hardware: teleport done":
+            # give the measurement results to the quantum internet, 
+            # because I guess the quantum internet still has to do some
+            # stuff.
+            msg = {'msg' : "endnode: teleport done",
+                   'measurement_result1' : msg['measurement_result1'],
+                   'measurement_result2' : msg['measurement_result2'],
+                   'sender_node' : self,
+                   'receiver_node' : self.link.node1 if self == self.link.node2 else self.link.node2}
+            self.send_message(
+                self.parent_application.quantum_internet,
+                msg
+            )
+        elif msg['msg'] == "endnode: teleport done":
+            # a node is telling us that it has teleported us something, 
+            # and is giving us the correction bits. So we'd better apply
+            # these corrections.
+            self.hardware.apply_teleport_corrections(msg['measurement_result1'], 
+                                                       msg['measurement_result2'])
+        elif msg['msg'] == "teleport corrections applied":
+            # notify the parent application that it has received a qubit
+            msg = {'msg' : "qubit received"}
+            self.send_message(self.parent_application, msg)
 
     def handle_link_creation_success(self, other):
-        self.links = other
+        self.link = other
 
-    def handle_link_request(self):
-        # determine if the other repeater is on the left or right
+#     def handle_link_request(self):
+#         # determine if the other repeater is on the left or right
             
-        # check if there is a node available on that side 
+#         # check if there is a node available on that side 
             
-        if slotAvailable:
-            # create the link
-            self.attempt_link_creation() #specify nodes here#
+#         if slotAvailable:
+#             # create the link
+#             self.attempt_link_creation() #specify nodes here#
 
-    def request_link(self, other):
-        msg = packLinkRequest(self.netId)
-        self.send_message(other, msg)
+#     def request_link(self, other):
+#         msg = packLinkRequest(self.netId)
+#         self.send_message(other, msg)

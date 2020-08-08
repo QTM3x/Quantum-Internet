@@ -125,9 +125,14 @@ class RepeaterHardware(object):
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.
         fiber = self.left_fiber if qubit == self.left_qubit else self.right_fiber
-        msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
-               'sender' : fiber.node2 if self == fiber.node1 else fiber.node1, 
-               'receiver' : self}
+        if photon.header == "link":
+            msg = {'msg' : "received link qubit",  # this is the standard. Document it somewhere.
+                   'sender' : fiber.node2 if self == fiber.node1 else fiber.node1,
+                   'receiver' : self}
+        else:
+            msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
+                   'sender' : fiber.node2 if self == fiber.node1 else fiber.node1, 
+                   'receiver' : self}
         if self.parent_repeater:
             self.send_message(self.parent_repeater, msg)
         photon.destroy()
@@ -161,6 +166,7 @@ class RepeaterHardware(object):
         qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
         qubit.reset()
         photon = Photon()
+        photon.header = "link"
         Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         H = Y90 * Z180
@@ -169,6 +175,12 @@ class RepeaterHardware(object):
         new_state = CNOT * new_state * CNOT.dag()
         self.global_state.update_state(new_state)
         self.send_photon_through_fiber(photon, fiber)
+        # notify parent_repeater
+        if self.parent_repeater:
+            msg = {'msg' : "sent link qubit",  # this is the standard. Document it somewhere.
+                   'sender' : self, 
+                   'receiver' : fiber.node2 if self == fiber.node1 else fiber.node1}
+            self.parent_repeater.send_message(msg)
         # 3. (for later) check somehow that we have a good link.
         # support for heralding stations and photon transmission, etc.
 

@@ -9,7 +9,7 @@ class QuantumInternet(object):
         print("creating quantum internet")
 #         self.parentApplication = parentApplication
         global_state_container.init()
-        self.repeater_chain = RepeaterChain(length)
+        self.repeater_chain = RepeaterChain(length, self)
         self.user_table = {} # for our 2 user network this table can have 
                             # at most 2 users. In front of each username goes the
                             # user's application object (BB84 object).
@@ -29,13 +29,27 @@ class QuantumInternet(object):
         self.user_table.update({application.username : application})
         print("new user added to user table:", self.user_table)
         
-    def send_qubit(self, qubit, sender_username, receiver_username):
+    def send_qubit(self, qubit, sender_username, receiver_username): # do async and await here?
+        # ask the network layer to set up a link between the two users.
+        endnode1 = self.user_table[sender_username]
+        endnode2 = self.user_table[receiver_username]
+        # await network layer link creation
+        
+        # 
+        return
+    
+    def really_send_qubit(self, qubit, endnode1, endnode2):
         return
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
-        if msg['msg'] == "forward to user":
+        if msg['msg'] == "endnodes linked":
+            # really send the qubit now
+            self.really_send_qubit(qubit, msg['endnode1'], msg['endnode1'])
+        elif msg['msg'] == "endnode: teleport done":
+            msg['receiver_node'].send_message(msg)
+        elif msg['msg'] == "forward to user":
             msg['msg'] = "msg from user"
             self.send_message(self.user_table[msg.receiver], msg)

@@ -17,7 +17,8 @@ class EndnodeHardware(object):
 #         self.id = None
         self.parent_endnode = parent_endnode
         self.global_state = global_state_container.state
-        self.qubit = Qubit(self)
+        self.qubit = Qubit(self) # this qubit is used to support entanglement
+        self.memory_qubit = Qubit(self) # this qubit is used to store qubits that a user needs to send
         self.fiber = None                                          
 #         self.memoryQubits = []
 
@@ -26,8 +27,40 @@ class EndnodeHardware(object):
         self.fiber = fiber
         fiber.connect_node_hardware(self)
 
+    def teleport_qubit(self): # this does the same thing as repeater.hardware.entanglement_swap.
+        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.memory_qubit.id, target=self.qubit.id)
+        new_state = CNOT * self.global_state.state * CNOT.dag()
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.memory_qubit.id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=memory_qubit.id)
+        H = Y90 * Z180
+        new_state = H * new_state * H.dag()
+        self.global_state.update_state(new_state)
+        measurement_result1 = self.measure(self.memory_qubit[0])
+        measurement_result2 = self.measure(self.qubit[0])     
+        # notify the parent repeater so that it can send the classical data to
+        # the other repeater.
+        msg = {'msg' : "hardware: teleport done", 
+               'measurement_result1' : measurement_result1,
+               'measurement_result2' : measurement_result2}
+        self.send_message(self.parent_endnode, msg)
+
+    def apply_teleport_corrections(self, measurement_result1, measurement_result2):
+        if measurement_result1 == 0 and measurement_result1 == 0:
+            return
+        elif measurement_result1 == 0 and measurement_result1 == 1:
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
+        elif measurement_result1 == 1 and measurement_result1 == 0:
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
+        elif measurement_result1 == 1 and measurement_result1 == 1:
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id) * correction
+        new_state = correction * self.global_state.state * correction.dag()
+        self.global_state.update_state(new_state)
+        msg = {'msg' : "teleport corrections applied"}
+        self.send_message(self.parent_endnode, msg)
+
     def send_message(self, obj, msg):
-        obj.handleMessage(msg)
+        obj.handle_message(msg)
 
     def handle_message(self, msg):
 #         msg = msg.split('-')
@@ -91,9 +124,14 @@ class EndnodeHardware(object):
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.
-        msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
-               'sender' : self.fiber.node2 if self == self.fiber.node1 else self.fiber.node1, 
-               'receiver' : self}
+        if photon.header == "link":
+            msg = {'msg' : "received link qubit",  # this is the standard. Document it somewhere.
+                   'sender' : self.fiber.node2 if self == self.fiber.node1 else self.fiber.node1, 
+                   'receiver' : self}
+        else:
+            msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
+                   'sender' : self.fiber.node2 if self == self.fiber.node1 else self.fiber.node1, 
+                   'receiver' : self}
         if self.parent_endnode:
             self.send_message(self.parent_endnode, msg)
         photon.destroy()
