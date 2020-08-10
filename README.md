@@ -53,11 +53,9 @@ Our approach will be to begin from the applications layer: What do we need a qua
 As a starting point, we will consider our application to be quantum key distribution using the BB84 protocol (see more in the applications layer folder). **CURRENT GOAL**: Design a quantum internet that we can use to implement the BB84 protocol fast enough to share 64-bits of secret key between two parties separated by 100 km in under an hour. This goal might be altered later if it turns out to be too complicated for an initial goal.
 
 
-
-
 ## How to contribute
 
-As we have chose GitHub as own platform, we will be using the features provided by git to make edits or to add to our files. The workflow is as follows:
+As we have chosen GitHub as own platform, we will be using the features provided by git to make edits or to add to our files. The workflow is as follows:
 
 1. Create a fork of the repository
 2. Edit the files in the fork to your own liking
@@ -65,21 +63,9 @@ As we have chose GitHub as own platform, we will be using the features provided 
 
 We have made a video example of this workflow [here](https://youtu.be/ZvfYAfjzc1M). If you are not familiar with GitHub as a platform, here is a nice introductory [video](https://youtu.be/w3jLJU7DT5E).
 
-All files are written in Markdown, a simple markup language with plain-text-formatting syntax. Check out this [cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) for markdown if you need any help and tips. Furthermore, since markdown does not support equations natively, and we are certain to use equations at some point, we recommend to use the following HTML workaround that supports LaTeX formatting.
-```markdown
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}"/>
-```
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}"/>
-
-
-
-
 If you have a question, you may ask it in the form of an issue. To raise an issue, simply go to the issues tab and create a new issue. Try to create an issue only when necessary (see point 1 in the guidelines below!).
 
 If you don't know how to begin contributing, have a look at the open issues and try to help with one of them. In fact, we recommend you start by doing that.
-
-
-
 
 Things that can be contributed to the repository include, but are not limited to, code, explanation text, explanation videos, ideas, and research questions. **The repository is still young and a lot of stuff need to be added, so just contribute what you can!**
 
