@@ -31,25 +31,32 @@ class QuantumInternet(object):
         
     def send_qubit(self, qubit, sender_username, receiver_username): # do async and await here?
         # ask the network layer to set up a link between the two users.
-        endnode1 = self.user_table[sender_username]
-        endnode2 = self.user_table[receiver_username]
+        endnode1 = self.user_table[sender_username].endnode
+        endnode2 = self.user_table[receiver_username].endnode
         # await network layer link creation
-        
-        # 
-        return
+        self.repeater_chain.attempt_link_creation(endnode1, endnode2)
+        # after the link has been created repeater_chain (network layer) 
+        # should notify quantum_internet (transport layer), and then 
+        # quantum_internet will teleport the qubit.
     
-    def really_send_qubit(self, qubit, endnode1, endnode2):
-        return
+    # def transport_qubit(self, qubit, sender_endnode, receiver_endnode):
+    #     return
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
-        if msg['msg'] == "endnodes linked":
-            # really send the qubit now
-            self.really_send_qubit(qubit, msg['endnode1'], msg['endnode1'])
-        elif msg['msg'] == "endnode: teleport done":
-            msg['receiver_node'].send_message(msg)
-        elif msg['msg'] == "forward to user":
-            msg['msg'] = "msg from user"
-            self.send_message(self.user_table[msg.receiver], msg)
+        if msg['msg'] == "network layer: Link to remote endnode created.":
+            # check if the nodes have a pending transport request
+            # ...
+            # then transport qubit
+            # self.transport_qubit(qubit, msg['endnode1'], msg['endnode1'])
+            msg['msg'] = "quantum internet: Link to remote user created."
+            self.send_message(msg['endnode1'], msg)
+            self.send_message(msg['endnode2'], msg)
+        elif msg['msg'] == "endnode: Teleport done. Handle corrections.":
+            msg['msg'] = "quantum internet: Teleport done. Handle corrections."
+            self.send_message(msg['receiver_node'], msg)
+        # elif msg['msg'] == "forward to user":
+        #     msg['msg'] = "msg from user"
+        #     self.send_message(self.user_table[msg.receiver], msg)

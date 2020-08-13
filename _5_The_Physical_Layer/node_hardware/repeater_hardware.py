@@ -23,12 +23,12 @@ class RepeaterHardware(object):
 #         self.memoryQubits = []
 
     def connect_right_fiber(self, fiber):
-        print("connecting right optical fiber")
+        print("connecting right optical fiber in repeater hardware")
         self.right_fiber = fiber
         fiber.connect_node_hardware(self)
 
     def connect_left_fiber(self, fiber):
-        print("connecting left optical fiber")
+        print("connecting left optical fiber in repeater hardware")
         self.left_fiber = fiber
         fiber.connect_node_hardware(self)
 
@@ -180,7 +180,7 @@ class RepeaterHardware(object):
             msg = {'msg' : "sent link qubit",  # this is the standard. Document it somewhere.
                    'sender' : self, 
                    'receiver' : fiber.node2 if self == fiber.node1 else fiber.node1}
-            self.parent_repeater.send_message(msg)
+            self.send_message(self.parent_repeater, msg)
         # 3. (for later) check somehow that we have a good link.
         # support for heralding stations and photon transmission, etc.
 

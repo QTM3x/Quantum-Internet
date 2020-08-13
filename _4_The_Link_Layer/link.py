@@ -1,4 +1,3 @@
-
 class Link(object):
     def __init__(self):
         # Each node is a repeater object

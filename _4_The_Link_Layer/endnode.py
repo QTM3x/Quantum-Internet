@@ -3,6 +3,8 @@ import sys
 sys.path.append("..")
 from _5_The_Physical_Layer.node_hardware.endnode_hardware import EndnodeHardware
 print("imported EndnodeHardware object", EndnodeHardware)
+from _4_The_Link_Layer.link import Link
+print("imported Link object", Link)
 
 class Endnode(object):
     def __init__(self):
@@ -12,6 +14,7 @@ class Endnode(object):
         self.link = None
         self.cable = None
         self.parent_application = None
+        self.send_flag = False
         
     def connect_cable(self, cable):
         print("connecting cable in endnode")
@@ -24,6 +27,18 @@ class Endnode(object):
 
     # attempt to create link with another repeater
     def attempt_link_creation(self, node):
+        # prepare a link layer Link object.
+        if self.cable is None:
+            print("link creation failed: no cables connected.")
+            return
+        else:
+            if node in (self.cable.node1, self.cable.node2):
+                self.link = Link()
+                self.link.node1 = self
+            else:
+                print("link creation failed: not connected to node.")
+                return
+        
         # attempt link creation on the next free qubit
         self.hardware.attempt_link_creation(node.hardware)
 
@@ -39,34 +54,15 @@ class Endnode(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
-#         if msg['msg'] == "entanglement swapping done":
-#             # update connections table
-#             self.handle_swapSuccess(..., ...)
-#             # retitle the message and forward it.
-#             # Note that the msg contains two measurement results.
-#             msg['msg'] = "entanglement swapping corrections"
-#             self.sendMessage(remote_epeater, msg)
-#         elif msg['msg'] == "entanglement swapping corrections":
-#             measurement_result1 = msg['measurement_result1']
-#             measurement_result2 = msg['measurement_result2']
-#             # assume we have received the qubit already.
-#             # ask the repeaterHardware to apply corrections.
-#             self.hardware.apply_swap_corrections(qubitId,
-#                                                        measurement_result1, 
-#                                                        measurement_result2)
-#         elif msg['msg'] == "entanglement swapping corrections applied":
-#             # update connections table
-#             self.handle_swap_success(..., ...)
-#         else:
-#             print("received unknown message")
-        if msg['msg'] == "received qubit":
-            if self.parent_application:
-                self.parent_application.receive_qubit()
-        elif msg['msg'] == "hardware: teleport done":
+        if msg['msg'] == "quantum internet: Link to remote user created.":
+            if self.send_flag:
+                self.teleport_qubit()
+                self.send_flag = False
+        elif msg['msg'] == "child hardware: Teleport done. Handle corrections.":
             # give the measurement results to the quantum internet, 
             # because I guess the quantum internet still has to do some
             # stuff.
-            msg = {'msg' : "endnode: teleport done",
+            msg = {'msg' : "endnode: Teleport done. Handle corrections.",
                    'measurement_result1' : msg['measurement_result1'],
                    'measurement_result2' : msg['measurement_result2'],
                    'sender_node' : self,
@@ -75,19 +71,16 @@ class Endnode(object):
                 self.parent_application.quantum_internet,
                 msg
             )
-        elif msg['msg'] == "endnode: teleport done":
-            # a node is telling us that it has teleported us something, 
-            # and is giving us the correction bits. So we'd better apply
-            # these corrections.
+        elif msg['msg'] == "quantum internet: Teleport done. Handle corrections.":
             self.hardware.apply_teleport_corrections(msg['measurement_result1'], 
                                                        msg['measurement_result2'])
-        elif msg['msg'] == "teleport corrections applied":
+        elif msg['msg'] == "child hardware: Teleport corrections applied.":
             # notify the parent application that it has received a qubit
-            msg = {'msg' : "qubit received"}
+            msg = {'msg' : "child endnode: Qubit received."}
             self.send_message(self.parent_application, msg)
 
-    def handle_link_creation_success(self, other):
-        self.link = other
+#    def handle_link_creation_success(self, other):
+#        self.link = other
 
 #     def handle_link_request(self):
 #         # determine if the other repeater is on the left or right

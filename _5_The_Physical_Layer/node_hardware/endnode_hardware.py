@@ -23,7 +23,7 @@ class EndnodeHardware(object):
 #         self.memoryQubits = []
 
     def connect_fiber(self, fiber):
-        print("connecting fiber")
+        print("connecting fiber in endnode hardware")
         self.fiber = fiber
         fiber.connect_node_hardware(self)
 
@@ -56,7 +56,7 @@ class EndnodeHardware(object):
             correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id) * correction
         new_state = correction * self.global_state.state * correction.dag()
         self.global_state.update_state(new_state)
-        msg = {'msg' : "teleport corrections applied"}
+        msg = {'msg' : "child hardware: Teleport corrections applied."}
         self.send_message(self.parent_endnode, msg)
 
     def send_message(self, obj, msg):
@@ -141,7 +141,9 @@ class EndnodeHardware(object):
         # here the physical details of link creation will be implemented:
         # 1. create EPR pair. Store one half locally and load the other on a photon.
         # 2. send the photon to the remote receiver.
-        self.qubit.reset()
+        fiber = self.fiber
+        qubit = self.qubit
+        qubit.reset()
         photon = Photon()
         Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
         Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.qubit.id)
@@ -151,6 +153,12 @@ class EndnodeHardware(object):
         new_state = CNOT * new_state * CNOT.dag()
         self.global_state.update_state(new_state)
         self.send_photon_through_fiber(photon, self.fiber)
+        # notify parent_repeater
+        if self.parent_endnode:
+            msg = {'msg' : "sent link qubit",  # this is the standard. Document it somewhere.
+                   'sender' : self, 
+                   'receiver' : fiber.node2 if self == fiber.node1 else fiber.node1}
+            self.send_message(self.parent_endnode, msg)
         # 3. (for later) check somehow that we have a good link.
         # support for heralding stations and photon transmission, etc.
 

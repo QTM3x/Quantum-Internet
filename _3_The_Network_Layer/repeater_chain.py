@@ -59,8 +59,12 @@ class RepeaterChain(object):
         # First we get the repeater wired to each endnode
         endnode1_repeater = self.repeaters[0] if endnode1.cable == self.repeaters[0].left_cable else self.repeaters[-1]
         endnode2_repeater = self.repeaters[0] if endnode2.cable == self.repeaters[0].left_cable else self.repeaters[-1]
+        # Then we link them.
         endnode1.attempt_link_creation(endnode1_repeater)
         endnode2.attempt_link_creation(endnode2_repeater)
+        # Then we swap.
+        for i in range(len(self.repeaters)):
+            self.repeaters[i].attempt_swap(self.repeaters[i].left_link, self.repeaters[i].right_link)
         # 2. once the link between the endnodes has been established, 
         #    notify quantum internet.
 
@@ -90,6 +94,9 @@ class RepeaterChain(object):
         obj.handle_message(msg)
         
     def handle_message(self, msg):
-        if msg['msg'] == "":
-            return
-        pass
+        if msg['msg'] == "repeater: swap complete":
+            if type msg['node1'] == "Endnode" and type msg['node2'] == "Endnode":
+                msg = {'msg': "network layer: Link to remote endnode created.",
+                       'endnode1': msg['node1'],
+                       'endnode2': msg['node2']}
+                self.send_message(self.parent_quantum_internet, msg)
