@@ -86,6 +86,7 @@ class Repeater(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
+        print("repeater received message")
         if msg['msg'] == "child hardware: Entanglement swapping done. Handle corrections.":
             # update connections table
             self.handle_swap_success() # you're still not handling corrections.
@@ -147,7 +148,7 @@ class Repeater(object):
             #     self.right_link.node1 = self
             return
         else:
-            print("received unknown message")
+            print("repeater received unknown message \"" + msg['msg'] + "\"")
 
     def handle_swap_success(self):
         # create new link between edge nodes and discard used up links

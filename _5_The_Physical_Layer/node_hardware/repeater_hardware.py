@@ -82,7 +82,6 @@ class RepeaterHardware(object):
         # https://inst.eecs.berkeley.edu/~cs191/fa14/lectures/lecture10.pdf
         print("measuring qubit in repeater hardware")
         rho = self.global_state.state
-        print("DEBUG: rho.tr() = ", rho.tr())
         # construct the projectors
         P0 = tensor([identity(2) for _ in range(qubit.id)] + 
                     [basis(2,0) * basis(2,0).dag()] + 

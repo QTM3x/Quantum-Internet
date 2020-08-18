@@ -55,6 +55,8 @@ class BB84(Application):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
+        if super().handle_message(msg) == 1:
+            return # application has already handled the message
         if msg['msg'] == "msg from user":
             if msg['type'] == "basis bits":
                 self.receive_bases(msg['data'])
@@ -62,6 +64,8 @@ class BB84(Application):
                     self.send_bases(msg['sender'])
             if msg['type'] == "qubits received":
                 self.send_bases(msg['sender'])
+        else:
+            print("BB84 application received unknown message \"" + msg['msg'] + "\"")
 
     def handle_exchange_complete(self):
         print("Key exchange complete:", key)

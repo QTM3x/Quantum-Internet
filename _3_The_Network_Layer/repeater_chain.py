@@ -84,9 +84,12 @@ class RepeaterChain(object):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
+        print("repeater chain received message")
         if msg['msg'] == "repeater: Swap complete.":
             if type(msg['node1']).__name__ == "Endnode" and type(msg['node2']).__name__ == "Endnode":
                 msg = {'msg': "network layer: Link to remote endnode created.",
                        'endnode1': msg['node1'],
                        'endnode2': msg['node2']}
                 self.send_message(self.parent_quantum_internet, msg)
+        else:
+            print("repeater chain received unknown message \"" + msg['msg'] + "\"")

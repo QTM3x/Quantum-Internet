@@ -21,6 +21,7 @@ class Endnode(object):
         cable.connect_node(self)
 
     def teleport_qubit(self):
+        # ask the hardware to execute the teleportation circuit
         self.hardware.teleport_qubit()
 
     # attempt to create link with another repeater
@@ -37,7 +38,6 @@ class Endnode(object):
             else:
                 print("link creation failed: not connected to node.")
                 return
-
         # attempt link creation on the next free qubit
         self.hardware.attempt_link_creation(node.hardware)
 
@@ -53,6 +53,7 @@ class Endnode(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
+        print("endnode received message")
         if msg['msg'] == "quantum internet: Link to remote user created.":
             if self.send_flag:
                 self.teleport_qubit()
@@ -70,9 +71,13 @@ class Endnode(object):
                 self.parent_application.quantum_internet,
                 msg
             )
+            # teleportation uses up the link
+            self.link = None
         elif msg['msg'] == "quantum internet: Teleport done. Handle corrections.":
             self.hardware.apply_teleport_corrections(msg['measurement_result1'], 
                                                        msg['measurement_result2'])
+            # link is now used up
+            self.link = None
         elif msg['msg'] == "child hardware: Teleport corrections applied.":
             # notify the parent application that it has received a qubit
             msg = {'msg' : "child endnode: Qubit received."}
@@ -105,11 +110,11 @@ class Endnode(object):
                 self.link.node2 = self
             # notify the parent repeater chain
             if self.parent_repeater_chain:
-                msg = {'msg' : "child repeater: Link created.",
+                msg = {'msg' : "child endnode: Link created.",
                        'link': self.link if side == "left" else self.link,
                        'side': side}
                 self.send_message(self.parent_repeater_chain, msg)
         elif msg['msg'] == "child hardware: Sent link qubit.":
             return
         else:
-            print("received unknown message")
+            print("endnode received unknown message \"" + msg['msg'] + "\"")

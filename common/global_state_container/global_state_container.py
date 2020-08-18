@@ -69,6 +69,9 @@ class GlobalState(object):
         # print(self.qubit_carriers_list)
         self.update_ids()
         # print("after:", self.state)
+
+    def get_qubit_state(self, qubit_id):
+        return self.state.ptrace(qubit_id)
         
     def update_ids(self):
         for carrier in self.qubit_carriers_list:

@@ -3,6 +3,8 @@ import sys
 sys.path.append("..")
 from _4_The_Link_Layer.endnode import Endnode
 
+from common.global_state_container import global_state_container
+
 class Application(object): # this code runs on the user's PQC (personal quantum computer)
     def __init__(self, username = None):
         print("creating new application")
@@ -19,12 +21,17 @@ class Application(object): # this code runs on the user's PQC (personal quantum 
         else:
             print("not connected to the quantum internet")
 
-    def receive_qubit(self, qubit):
-        pass
+    def handle_qubit_received(self):
+        print("application received qubit with state", 
+            global_state_container.state.get_qubit_state(self.endnode.hardware.qubit.id))
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)
  
     def handle_message(self, msg):
-        if msg['msg'] == "qubit received":
-            receive_qubit()
+        print("application received message")
+        if msg['msg'] == "child endnode: Qubit received.":
+            self.handle_qubit_received()
+            return 1
+        else:
+            return -1

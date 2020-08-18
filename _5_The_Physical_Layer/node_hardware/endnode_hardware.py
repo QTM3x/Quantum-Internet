@@ -38,7 +38,7 @@ class EndnodeHardware(object):
         measurement_result2 = self.measure(self.qubit)
         # notify the parent repeater so that it can send the classical data to
         # the other repeater.
-        msg = {'msg' : "hardware: Teleport Done.",
+        msg = {'msg' : "child hardware: Teleport done. Handle corrections.",
                'measurement_result1' : measurement_result1,
                'measurement_result2' : measurement_result2}
         self.send_message(self.parent_endnode, msg)
@@ -74,10 +74,9 @@ class EndnodeHardware(object):
                     [basis(2,0) * basis(2,0).dag()] + 
                     [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
         P1 = tensor([identity(2) for _ in range(qubit.id)] + 
-                    [basis(2,1) * basis(2,0).dag()] + 
+                    [basis(2,1) * basis(2,1).dag()] + 
                     [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
         # compute the probabilities of the 1 and 0 outcomes
-        print("DEBUG: rho.tr() = ", rho.tr())
         p0 = (P0 * rho).tr()
         p1 = (P1 * rho).tr() # check that p1 = 1 - p0
         # choose an outcome at random using the probabilities above.

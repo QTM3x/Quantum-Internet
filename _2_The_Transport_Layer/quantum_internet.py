@@ -57,6 +57,7 @@ class QuantumInternet(object):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
+        print("quantum internet received message")
         if msg['msg'] == "network layer: Link to remote endnode created.":
             # check if the nodes have a pending transport request
             # ...
@@ -71,3 +72,5 @@ class QuantumInternet(object):
         # elif msg['msg'] == "forward to user":
         #     msg['msg'] = "msg from user"
         #     self.send_message(self.user_table[msg.receiver], msg)
+        else:
+            print("quantum internet received unknown message \"" + msg['msg'] + "\"")
