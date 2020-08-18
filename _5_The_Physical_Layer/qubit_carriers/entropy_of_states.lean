@@ -1,15 +1,16 @@
 import .quantum_state
 
-
+variables (n m : ℕ)
 
 ---- QUANTUM ENTROPY
 
 /-
 Definition (Quantum entropy): 
 -/
-def quantum_entropy (ρ : density_operator) : ℝ := - Tr(ρ * log(ρ))
+def quantum_entropy (ρ : density_operator n) : ℝ := - Tr(ρ.M * log(ρ.M))
 
 notation `H(` ρ `)` := quantum_entropy(ρ)
+
 
 
 
@@ -18,20 +19,18 @@ notation `H(` ρ `)` := quantum_entropy(ρ)
 /-
 Theorem (non-negativity): Quantum entropy is non-negative.
 -/
-theorem quantum_entropy_nonnegative : ∀ (ρ : density_operator), H(ρ) ≥ 0 :=
+theorem quantum_entropy_nonnegative : ∀ (ρ : density_operator n), H(ρ) ≥ 0 :=
 -- proof
 begin
     sorry
 end
-
 
 /-
 Theorem (minimum value): The minimum value of quantum entropy is 
 zero and occurs when the state is pure.
 -/
 theorem minimum_value_quantum_entropy : 
-∀ (ρ : density_operator), is_pure ρ → H(ρ) = 0 := sorry
-
+∀ (ρ : density_operator n), is_pure ρ → H(ρ) = 0 := sorry
 
 /-
 Theorem (maximum value): The maximum value of quantum entropy is 
@@ -39,12 +38,12 @@ log d and occurs when the state is the maximally mixed state.
 -/
 theorem maximum_value_quantum_entropy := sorry
 
-
 /-
-Theorem (additivity of tensor states)
+Theorem (additivity for tensor states)
 -/
 theorem additive_quantum_entropy_tensor_states :
-∀ (ρ₁ : density_operator) (ρ₂ : density_operator), H(ρ₁ ⊗ ρ₂) = H(ρ₁) + H(ρ₂) := sorry
+∀ (ρ₁ : density_operator n) (ρ₂ : density_operator m), H(ρ₁ ⊗ ρ₂) = H(ρ₁) + H(ρ₂) := sorry
+
 
 
 
@@ -53,7 +52,8 @@ theorem additive_quantum_entropy_tensor_states :
 /-
 Definition (conditional quantum entropy)
 -/
-def cond_quantum_entropy (ρ : density_operator) : ℝ := sorry
+def cond_quantum_entropy (ρ : density_operator ) : ℝ := sorry
+
 
 
 
@@ -71,12 +71,14 @@ def reverse_coherent_information (ρ : density_operator) := sorry
 
 
 
+
 ---- QUANTUM MUTUAL INFORMATION
 
 /-
 Definition (quantum mutual information)
 -/
 def quantum_mutual_information (ρ : density_operator) : ℝ := sorry
+
 
 
 
@@ -89,6 +91,7 @@ def Holevo_information (ρ : density_operator) := sorry
 
 
 
+
 ---- ACCESSIBLE INFORMATION
 
 /-
@@ -98,12 +101,14 @@ def accessible_information := sorry
 
 
 
+
 ---- CONDITION QUANTUM MUTUAL INFORMATION
 
 /-
 Definition (conditional quantum mutual information)
 -/
 def cond_quantum_mutual_information := sorry
+
 
 
 

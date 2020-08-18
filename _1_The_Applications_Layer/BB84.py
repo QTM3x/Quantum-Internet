@@ -14,8 +14,8 @@ class BB84(Application):
         self.key_bits = []
         self.bases_sent = False
 
-    def send_qubit(self, qubit, remote_user):
-        super().send_qubit(self, qubit, remote_user)
+    def send_qubit(self, remote_user):
+        super().send_qubit(remote_user)
 
     def receive_qubit(self, qubit): # a state has been teleported onto a local qubit.
         print("received qubit", qubit)

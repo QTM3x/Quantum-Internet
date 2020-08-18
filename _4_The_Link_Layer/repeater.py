@@ -2,9 +2,7 @@ import sys
 
 sys.path.append("..")
 from _5_The_Physical_Layer.node_hardware.repeater_hardware import RepeaterHardware
-print("imported RepeaterHardware object", RepeaterHardware)
 from _4_The_Link_Layer.link import Link
-print("imported Link object", Link)
 
 class Repeater(object):
     def __init__(self, parent_repeater_chain, n=1):
@@ -30,11 +28,18 @@ class Repeater(object):
         cable.connect_node(self)
     
     def attempt_swap(self, left_link, right_link):
+        print("repeater", self , ": Attempting swap.")
+        if left_link == None:
+            print("repeater", self , ": Swap failed. Left link missing.")
+            return
+        if right_link == None:
+            print("repeater", self , ": Swap failed. Right link missing.")
+            return    
         self.hardware.swap_entanglement()
-        # wait for repeaterHardware to tell us when/if the swap is done.
 
     # attempt to create link with another node
     def attempt_link_creation(self, node):
+        print("attempting link creation in repeater")
         # prepare a link layer Link object.
         if self.left_cable is None:
             if self.right_cable is None:
@@ -81,43 +86,57 @@ class Repeater(object):
 
     # this function receives an emitted signal
     def handle_message(self, msg):
-        if msg['msg'] == "entanglement swapping done":
+        if msg['msg'] == "child hardware: Entanglement swapping done. Handle corrections.":
             # update connections table
-            self.handle_swap_success(..., ...)
+            self.handle_swap_success() # you're still not handling corrections.
             # retitle the message and forward it.
             # Note that the msg contains two measurement results.
-            msg['msg'] = "entanglement swapping corrections"
+            msg['msg'] = "neighbor repeater: Entanglement swapping done. Handle corrections."
+            msg['sender'] = self
+            remote_repeater = self.right_cable.node1 if self.right_cable.node1 != self else self.right_cable.node2
             self.send_message(remote_repeater, msg)
-        elif msg['msg'] == "entanglement swapping corrections":
+        elif msg['msg'] == "neighbor repeater: Entanglement swapping done. Handle corrections.":
             measurement_result1 = msg['measurement_result1']
             measurement_result2 = msg['measurement_result2']
+            sender = msg['sender']
             # assume we have received the qubit already.
             # ask the repeaterHardware to apply corrections.
-            self.hardware.apply_swap_corrections(qubitId,
+            side = "left" if sender in (self.left_cable.node1, self.left_cable.node2) else "right"
+            self.hardware.apply_swap_corrections(side,
                                                        measurement_result1, 
                                                        measurement_result2)
-        elif msg['msg'] == "entanglement swapping corrections applied":
+        elif msg['msg'] == "child hardware: Entanglement swapping corrections applied.":
             # update connections table
 #             self.handle_swap_success(..., ...)
             return
-        elif msg['msg'] == "received qubit":
+        elif msg['msg'] == "child hardware: Received qubit.":
             return
-        elif msg['msg'] == "received link qubit":
-            sender = msg['sender'].parent_repeater # sender is a node hardware
-            side = "left" if sender in (self.left_cable.node1, self.left_cable.node2) else "right"
+        elif msg['msg'] == "child hardware: Received link qubit.":
+            sender = msg['sender']
+            if type(sender).__name__ == "EndnodeHardware":
+                remote_node = sender.parent_endnode # sender is a node hardware
+            else:
+                remote_node = sender.parent_repeater
+            side = "left" if remote_node in (self.left_cable.node1, self.left_cable.node2) else "right"
             if side == "left":
-                self.left_link = sender.right_link
+                if type(remote_node).__name__ == "Endnode":
+                    self.left_link = remote_node.link
+                else:
+                    self.left_link = remote_node.right_link
                 self.left_link.node2 = self
             else:
-                self.right_link = sender.left_link
+                if type(remote_node).__name__ == "Endnode":
+                    self.right_link = remote_node.link
+                else:
+                    self.right_link = remote_node.left_link
                 self.right_link.node2 = self
             # notify the parent repeater chain
             if self.parent_repeater_chain:
-                msg = {'msg' : "link created",
+                msg = {'msg' : "child repeater: Link created.",
                        'link': self.left_link if side == "left" else self.right_link,
                        'side': side}
-                self.send_message(self.parent_repeater_chain)
-        elif msg['msg'] == "sent link qubit":
+                self.send_message(self.parent_repeater_chain, msg)
+        elif msg['msg'] == "child hardware: Sent link qubit.":
             # receiver = msg['receiver'].parent_repeater # change this to parent node throughout
             # side = "left" if receiver in (self.left_cable.node1, self.left_cable.node2) else "right"
             # if side == "left":
@@ -131,19 +150,32 @@ class Repeater(object):
             print("received unknown message")
 
     def handle_swap_success(self):
-        # create new link between edge nodes
+        # create new link between edge nodes and discard used up links
+        # print("debug:", self.left_link, self.right_link)
         left_edge_node = self.left_link.node1 if self.left_link.node1 != self else self.left_link.node2
         right_edge_node = self.right_link.node1 if self.right_link.node1 != self else self.right_link.node2
-        left_edge_node.right_link = Link()
-        right_edge_node.left_link = left_edge_node.right_link
+        new_link = Link()
+        new_link.node1 = left_edge_node
+        new_link.node2 = right_edge_node
+        # new_link.fidelity = ...
+        # print("debug: ", left_edge_node, right_edge_node)
+        if type(left_edge_node).__name__ == "Endnode":
+            left_edge_node.link = new_link
+        else:
+            left_edge_node.right_link = Link()
+        if type(right_edge_node).__name__ == "Endnode":
+            right_edge_node.link = new_link
+        else:
+            right_edge_node.left_link = new_link
         #notify parent repeater chain (network layer)
-        msg = {'msg' : "repeater: swap complete",
+        msg = {'msg' : "repeater: Swap complete.",
                'node1': self.left_link.node1 if self == self.left_link.node2 else self.left_link.node2,
                'node2': self.right_link.node1 if self == self.right_link.node2 else self.right_link.node2}
         self.send_message(self.parent_repeater_chain, msg)
         # destroy links involved in swap
-        del self.left_link
-        del self.right_link
+        self.left_link = None
+        self.right_link = None
+        print("repeater", self , ": Swapping done.")
 
 #     def handle_link_creation_success(self, side, remote_repeater):
 #         if side == "left":
@@ -159,7 +191,3 @@ class Repeater(object):
 #        if slotAvailable:
 #            # create the link
 #            self.attempt_link_creation() #specify nodes here#
-
-#    def request_link(self, remote_repeater):
-#        msg = pack_link_request(self.netId)
-#        self.send_message(other, msg)

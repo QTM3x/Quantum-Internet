@@ -5,9 +5,7 @@ from qutip import *
 
 sys.path.append("../..")
 from _5_The_Physical_Layer.qubit_carriers.qubit import Qubit
-print("imported Qubit object")
 from _5_The_Physical_Layer.qubit_carriers.photon import Photon
-print("imported Photon object")
 
 from common.global_state_container import global_state_container
 
@@ -36,15 +34,10 @@ class RepeaterHardware(object):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
-        msg = msg.split('-')
-        # id of the sender
-        id = msg[0]
-        if msg[1] == "decohered":
-            # notify the link layer
-            msg2 = packLinkExpired() #specify which link expired#
-            self.send_message(self.parent_repeater, msg2)
+        return
 
-    def swap_entanglement(self): 
+    def swap_entanglement(self):
+        print("swapping entanglement in repeater hardware")
         # proper quantum gates will be performed here.
         # find the positions of the qubits in the globalState state
         # apply the right qutip gates. Assume ideal gates at this point while you're
@@ -57,44 +50,48 @@ class RepeaterHardware(object):
         H = Y90 * Z180
         new_state = H * new_state * H.dag()
         self.global_state.update_state(new_state)
-        measurement_result1 = self.measure(self.left_qubit[0])
-        measurement_result2 = self.measure(self.right_qubit[0])     
+        measurement_result1 = self.measure(self.left_qubit)
+        measurement_result2 = self.measure(self.right_qubit)
         # notify the parent repeater so that it can send the classical data to
         # the other repeater.
-        msg = {'msg' : "entanglement swapping done", 
+        msg = {'msg' : "child hardware: Entanglement swapping done. Handle corrections.", 
                'measurement_result1' : measurement_result1,
                'measurement_result2' : measurement_result2}
         self.send_message(self.parent_repeater, msg)
         # Now the parent repeater should notify the remote repeater
         # that swapping is done and should give it the measurement results.
 
-    def apply_swap_corrections(self, qubitId, measurement_result1, measurement_result2):
+    def apply_swap_corrections(self, side, measurement_result1, measurement_result2):
+        print("applying swap corrections in repeater hardware")
+        qubit = self.left_qubit if side == "left" else self.right_qubit
         if measurement_result1 == 0 and measurement_result1 == 0:
             return
         elif measurement_result1 == 0 and measurement_result1 == 1:
-            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         elif measurement_result1 == 1 and measurement_result1 == 0:
-            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         elif measurement_result1 == 1 and measurement_result1 == 1:
-            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId)
-            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubitId) * correction
+            correction = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
+            correction = rx(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id) * correction
         new_state = correction * self.global_state.state * correction.dag()
         self.global_state.update_state(new_state)
-        msg = {'msg' : "entanglement swapping corrections applied"}
+        msg = {'msg' : "child hardware: Entanglement swapping corrections applied."}
         self.send_message(self.parent_repeater, msg)
 
     def measure(self, qubit, axis = "01"):
         # https://inst.eecs.berkeley.edu/~cs191/fa14/lectures/lecture10.pdf
         print("measuring qubit in repeater hardware")
         rho = self.global_state.state
+        print("DEBUG: rho.tr() = ", rho.tr())
         # construct the projectors
         P0 = tensor([identity(2) for _ in range(qubit.id)] + 
-                    basis(2,0) * basis(2,0).dag() + 
+                    [basis(2,0) * basis(2,0).dag()] + 
                     [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
         P1 = tensor([identity(2) for _ in range(qubit.id)] + 
-                    basis(2,1) * basis(2,0).dag() + 
+                    [basis(2,1) * basis(2,1).dag()] + 
                     [identity(2) for _ in range(qubit.id + 1, int(math.log2(self.global_state.state.shape[0])))])
         # compute the probabilities of the 1 and 0 outcomes
+        # print("DEBUG: rho.tr() = ", rho.tr())
         p0 = (P0 * rho).tr()
         p1 = (P1 * rho).tr() # check that p1 = 1 - p0
         # choose an outcome at random using the probabilities above.
@@ -126,11 +123,12 @@ class RepeaterHardware(object):
         # notify the layers above that a qubit was received.
         fiber = self.left_fiber if qubit == self.left_qubit else self.right_fiber
         if photon.header == "link":
-            msg = {'msg' : "received link qubit",  # this is the standard. Document it somewhere.
+            print("received link qubit in repeater")
+            msg = {'msg' : "child hardware: Received link qubit.",  # this is the standard. Document it somewhere.
                    'sender' : fiber.node2 if self == fiber.node1 else fiber.node1,
                    'receiver' : self}
         else:
-            msg = {'msg' : "received qubit",  # this is the standard. Document it somewhere.
+            msg = {'msg' : "child hardware: Received qubit.",  # this is the standard. Document it somewhere.
                    'sender' : fiber.node2 if self == fiber.node1 else fiber.node1, 
                    'receiver' : self}
         if self.parent_repeater:
@@ -150,6 +148,7 @@ class RepeaterHardware(object):
         self.unload_qubit_from_photon(qubit, photon)
 
     def attempt_link_creation(self, remote_node):
+        print("attempting link creation in repeater hardware")
         # remote is a repeater object.
         # here the physical details of link creation will be implemented:
         # 1. create EPR pair on one of the local qubits and a photon.
@@ -177,7 +176,7 @@ class RepeaterHardware(object):
         self.send_photon_through_fiber(photon, fiber)
         # notify parent_repeater
         if self.parent_repeater:
-            msg = {'msg' : "sent link qubit",  # this is the standard. Document it somewhere.
+            msg = {'msg' : "child hardware: Sent link qubit.",  # this is the standard. Document it somewhere.
                    'sender' : self, 
                    'receiver' : fiber.node2 if self == fiber.node1 else fiber.node1}
             self.send_message(self.parent_repeater, msg)

@@ -29,15 +29,26 @@ class QuantumInternet(object):
         self.user_table.update({application.username : application})
         print("new user added to user table:", self.user_table)
         
-    def send_qubit(self, qubit, sender_username, receiver_username): # do async and await here?
+    # def send_qubit(self, qubit, sender_username, receiver_username): # do async and await here?
+    #     # ask the network layer to set up a link between the two users.
+    #     endnode1 = self.user_table[sender_username].endnode
+    #     endnode2 = self.user_table[receiver_username].endnode
+    #     # await network layer link creation
+    #     self.repeater_chain.attempt_link_creation(endnode1, endnode2)
+    #     # after the link has been created repeater_chain (network layer) 
+    #     # should notify quantum_internet (transport layer), and then 
+    #     # quantum_internet will teleport the qubit.
+
+    def request_link(self, sender_username, receiver_username): # do async and await here?
+        print("requesting link in quantum internet")
         # ask the network layer to set up a link between the two users.
         endnode1 = self.user_table[sender_username].endnode
         endnode2 = self.user_table[receiver_username].endnode
         # await network layer link creation
-        self.repeater_chain.attempt_link_creation(endnode1, endnode2)
+        self.repeater_chain.request_link(endnode1, endnode2)
         # after the link has been created repeater_chain (network layer) 
         # should notify quantum_internet (transport layer), and then 
-        # quantum_internet will teleport the qubit.
+        # quantum_internet will teleport the qubit?
     
     # def transport_qubit(self, qubit, sender_endnode, receiver_endnode):
     #     return

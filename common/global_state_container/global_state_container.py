@@ -16,10 +16,8 @@ def init():
 
 class GlobalState(object):
     def __init__(self):
-#         self.N = N # the number of qubits
         GUI.init()
-#         self.M = N - 1 # this is the number of optical fibers
-        self.state = None # everything starts in the |000..0> state.
+        self.state = None
 #         self.id_count = 0
         self.qubit_carriers_list = []
         
@@ -49,28 +47,28 @@ class GlobalState(object):
     
     def create_qubit(self, qubit_carrier):
         print("creating new qubit in global state")
-        print("before:", self.state)
+        # print("before:", self.state)
         if self.state is None:
             new_state = basis(2,0) * basis(2,0).dag()
         else:
             new_state = tensor(self.state, basis(2,0) * basis(2,0).dag())
         self.update_state(new_state)
-        print("after:", self.state)
+        # print("after:", self.state)
         self.qubit_carriers_list.append(qubit_carrier)
 #         self.id_count += 1
-        print(self.qubit_carriers_list)
+        # print(self.qubit_carriers_list)
         return len(self.qubit_carriers_list)-1
     
     def destroy_qubit(self, qubit_id):
         print("destroying qubit", qubit_id, "in global state")
-        print("before:", self.state)
+        # print("before:", self.state)
         keep_systems = [i for i in range(len(self.qubit_carriers_list))]
         del keep_systems[qubit_id]
         self.update_state(self.state.ptrace(keep_systems)) #trace out the qubit
         del self.qubit_carriers_list[qubit_id]
-        print(self.qubit_carriers_list)
+        # print(self.qubit_carriers_list)
         self.update_ids()
-        print("after:", self.state)
+        # print("after:", self.state)
         
     def update_ids(self):
         for carrier in self.qubit_carriers_list:

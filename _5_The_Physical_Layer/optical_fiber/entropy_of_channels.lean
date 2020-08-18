@@ -10,7 +10,7 @@ import common.matrix_ops
 /-
 Definition (Holevo information of a quantum channel)
 -/
-def Holevo_informaStion_channel (𝒩 : quantum_channel) : ℝ := sorry
+def Holevo_information_channel (𝒩 : quantum_channel) : ℝ := sorry
 
 
 

@@ -14,7 +14,8 @@ class Application(object): # this code runs on the user's PQC (personal quantum 
     def send_qubit(self, remote_user): # qubit here is the local Qubit object on EndnodeHardware.
         if self.quantum_internet:
             self.endnode.send_flag = True
-            self.quantum_internet.send_qubit(self.endnode.hardware.memory_qubit, self.username, remote_user)
+            # self.quantum_internet.send_qubit(self.endnode.hardware.memory_qubit, self.username, remote_user)
+            self.quantum_internet.request_link(self.username, remote_user) # the quantum internet will now make the link then notify the endnode to teleport.
         else:
             print("not connected to the quantum internet")
 
