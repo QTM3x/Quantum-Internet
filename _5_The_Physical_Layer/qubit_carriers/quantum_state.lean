@@ -4,6 +4,8 @@ import common.matrix_ops
 variables (n m : ℕ)
 
 
+---- STATES IN FINITE DIMENSIONAL HILBERT SPACE
+
 /-
 Definition (density operator): A quantum state/density operator is 
 a positive semi-definite matrix with trace 1.
@@ -15,8 +17,17 @@ structure density_operator : Type :=
 
 
 
+---- STATES IN INFINITE DIMENSIONAL HILBERT SPACE
 
--- PURE STATES
+-- structure infinite_dim_density_operator : Type := 
+-- ()
+-- (positive_semidefinite : )
+-- (trace_one : )
+
+
+
+
+---- PURE STATES
 
 /-
 Definition (pure states): A quantum state is pure when ...
@@ -25,20 +36,46 @@ def purity (ρ : density_operator n) : ℝ := Tr(ρ.M† * ρ.M)
 
 def is_pure (ρ : density_operator n) : Prop := purity ρ = 1
 
+/-
+Theorem
+-/
 theorem is_pure_unit_vec (ρ : density_operator n) : 
-is_pure ρ ↔ ∃ (ψ : unit_vector), ρ = ∣ψ⟩⟨ψ∣
+is_pure ρ ↔ ∃ (ψ : unit_vector), ρ = ∣ψ⟩⟨ψ∣ := 
+begin
+    sorry
+end
 
 /-
 Theorem (purity unitary invariant): Purity is conserved under
 unitary evolutions.
 -/
 theorem purity_unitary_invariant {U : matrix (fin n) (fin n) ℂ} {hU : is_unitary U} : 
-purity(U*ρ*U†) = purity(ρ) := sorry
+purity(U*ρ*U†) = purity(ρ) :=
+begin
+    sorry
+end
+
+/-
+Definition (purification of a density operator)
+-/
+def is_purification (ρ : density_operator n) (∣ψ⟩ : pure_state) : 
+Prop := Tr_E(∣ψ⟩⟨ψ∣) = ρ
 
 
 
 
--- TENSOR PRODUCT OF DENSITY OPERATORS
+---- ENTANGLED STATES
+
+/-
+Definition (maximally entangled state with a given dimension)
+-/
+def maximally_entangled_state (dim : ℕ) : density_operator dim :=
+⟨(∑ᵢ ∣i⟩∣i⟩)*(∑ᵢ ∣i⟩∣i⟩)† , _ , _ ⟩ 
+
+
+
+
+---- TENSOR PRODUCT OF DENSITY OPERATORS
 
 /- 
 Lemma: The tensor product of two positive semidefinite 
@@ -57,8 +94,8 @@ Lemma: The tensor product of two matrices with trace 1 is a matrix with
 trace 1.
 -/
 lemma tensor_trace_one (M₁ : matrix (fin n) (fin n) ℂ) 
-(M₂ : matrix (fin m) (fin m) ℂ) (hM : (Tr(M₁) = 1) ∧ (Tr(M₂) = 1)): 
-Tr(M₁ ⊗ M₂) = 1 :=
+(M₂ : matrix (fin m) (fin m) ℂ) : 
+Tr(M₁) = 1 ∧ Tr(M₂) = 1 → Tr(M₁ ⊗ M₂) = 1 :=
 begin
     sorry
 end
@@ -72,10 +109,20 @@ def tensor_states (ρ₁ : density_operator n) (ρ₂ : density_operator m)
 
 
 
--- WIGNER FUNCTION
+---- CLASSICAL-QUANTUM STATES
 
 /-
-Deinfition (Wigner function): A Wigner function is a phase space 
+Definition (classical-quantum states)
+-/
+def is_classical_quantum (ρ : density_operator) : Prop := sorry
+
+
+
+
+---- WIGNER FUNCTION
+
+/-
+Definition (Wigner function): A Wigner function is a phase space 
 mapping of a state,something like a fourier transform, except into 
 the phase space joint space.
 -/
@@ -97,7 +144,9 @@ is_pure ρ ↔ positive (Wigner_function ρ) := sorry
 Definition (maximally mixed state): A maximally mixed state of 
 dimension n is the state whose matrix is given by the I/n.
 -/
-def maximally_mixed_state : density_operator n := sorry
+def maximally_mixed_state (dim : ℕ) : density_operator dim := sorry
+
+notation `π_` d := maximally_mixed_state d
 
 /-
 Definition (bosonic state): A general bosonic state is given by ρ(μ,V), (μ is the 
