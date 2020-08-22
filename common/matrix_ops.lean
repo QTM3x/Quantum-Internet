@@ -15,6 +15,13 @@ def positive_semidefinite (M : matrix (fin n) (fin n) ℂ) : Prop :=
 
 
 
+---- DIAGONAL MATRICES 
+
+def is_diagonal {α : Type*} (M : matrix (fin n) (fin n) α) : Prop := sorry
+
+
+
+
 ---- IDENTITY MAP
 
 /-
@@ -145,9 +152,23 @@ end
 
 ---- MATRIX LOGARITHM
 
+/-
+Definition (matrix log)
+-/
 def matrix_log (M : matrix (fin n) (fin n) ℂ) : 
 matrix (fin n) (fin n) ℂ
 := sorry
+
+/-
+Theorem (matrix log of a diagonal matrix): The matrix 
+logarithm of a diagonal matrix is the same matrix but 
+with the entries replaced by their log.
+-/
+theorem matrix_log (M : matrix (fin n) (fin n) ℂ) : 
+is_diagonal M → matrix_log M = M.map (λ (c : ℂ), real.log c) :=
+begin
+    sorry
+end
 
 
 

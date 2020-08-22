@@ -1,10 +1,7 @@
 import common.matrix_ops
 import _5_The_Physical_Layer.qubit_carriers.quantum_state
 
--- Basic Quantum channel definitions, notations and theorems.
-
 variables {n m k l : ℕ}
-
 
 ---- QUANTUM CHANNEL BETWEEN STATES IN FINITE DIM HILBERT SPACE
 
@@ -88,6 +85,16 @@ is_degradable (quantum_Hadamard_channel) :=
 begin
     sorry
 end
+
+
+
+
+---- UNITAL CHANNELS
+
+/-
+Definition (unital quantum channels)
+-/
+def is_unital (𝒩 : quantum_channel n m) : Prop := sorry
 
 
 

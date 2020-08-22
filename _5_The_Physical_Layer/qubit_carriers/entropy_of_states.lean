@@ -1,27 +1,65 @@
 import data.real.basic
 import analysis.special_functions.exp_log
-import .quantum_state
-import ..optical_fiber.quantum_channel
+import _5_The_Physical_Layer.qubit_carriers.quantum_state
+import _5_The_Physical_Layer.optical_fiber.quantum_channel
+import common.shannon_theory
 
 notation `|` x `|` := abs x
 
-variables (n m : ℕ)
+variables {n m : ℕ}
+
+noncomputable theory
 
 ---- QUANTUM ENTROPY
 
 /-
-Definition (Quantum entropy): 
+Definition (Quantum entropy):
+"Suppose that Alice generates a quantum state ∣ψy⟩ in her 
+lab according to some probability density p_Y(y), corresponding
+to a random variable Y. Suppose further that Bob has not yet 
+received the state from Alice and does not know which one she sent.
+The expected density operator from Bob’s point of view is then
+σ =  𝐄_Y{∣ψY⟩⟨ψY∣} = ∑ y, p_Y(y) • ∣ψy⟩⟨ψy∣.
+The interpretation of the entropy H(σ) is that it quantifies Bob’s 
+uncertainty about the state Alice sent — his expected information 
+gain is H(σ) qubits upon receiving and measuring the state that 
+Alice sends."
+https://arxiv.org/pdf/1106.1445.pdf
 -/
-def quantum_entropy (ρ : density_operator n) : ℝ := - Tr(ρ.M * matrix_log(ρ.M))
+def quantum_entropy (ρ : density_operator n) : ℝ := 
+- Tr(ρ.M * matrix_log(ρ.M)).re
 
-notation `H(` ρ `)` := quantum_entropy(ρ)
+notation `H(` ρ `)` := quantum_entropy ρ
+
+/-
+Definition (quantum entropy of spectral decomposition)
+-/
+-- def quantum_entropy_of_spectral_decomposition : 
+
+/-
+Theorem (quantum entropy of state and shannon entropy of prob dist)
+-/
+theorem quantum_entropy_eq_shannon_entropy_of_prob_dist
+{ρ : density_operator n} 
+{prob_dist : multiset ℝ} :
+-- {hρ : ρ = ∑ i, prob_dist i • ∣i▸dim⟩⟨i▸dim∣} : 
+H(ρ) = shannon_entropy(prob_dist) :=
+begin
+    unfold quantum_entropy,
+    unfold shannon_entropy,
+    sorry
+end
 
 /-
 Theorem (non-negativity): Quantum entropy is non-negative.
 -/
-theorem quantum_entropy_nonnegative : ∀ (ρ : density_operator n), H(ρ) ≥ 0 :=
--- proof
+theorem quantum_entropy_nonneg {n : ℕ} : 
+∀ (ρ : density_operator n), H(ρ) ≥ 0 :=
 begin
+    intro ρ,
+    -- This follows from non-negativity of Shannon entropy
+    -- rw quantum_entropy_eq_shannon_entropy_of_prob_dist,
+    -- exact shannon_entropy_nonneg,
     sorry
 end
 
@@ -111,7 +149,7 @@ Theorem (maximum of abs of conditional quantum entropy)
 Page 333 here https://arxiv.org/pdf/1106.1445.pdf.
 -/
 theorem cond_quantum_entropy_max : 
-∀ (ρ : density_operator), |H(A|B)_ρ| ≤ real.log Tr_B(ρ).dim :=
+∀ (ρ : density_operator n), |H(A|B)_ρ| ≤ real.log Tr_B(ρ).dim :=
 begin
     -- start by rewriting using abs_le
 
@@ -138,7 +176,7 @@ end
 /-
 Definition (coherent information)
 -/
-def coherent_information (ρ : density_operator) {hρ : ρ.dim ≥ 4} : ℝ := 
+def coherent_info (ρ : density_operator n) {hρ : ρ.dim ≥ 4} : ℝ := 
 H(pTr(ρ.M , ρ.dim/2)) - H(ρ)
 
 notation `I(` A `⟩` B `)_` ρ := coherent_information(ρ)
@@ -146,13 +184,13 @@ notation `I(` A `⟩` B `)_` ρ := coherent_information(ρ)
 /-
 Definition (reverse coherent information): 
 -/
-def reverse_coherent_information (ρ : density_operator) := sorry
+def reverse_coherent_info (ρ : density_operator n) := sorry
 
 /-
 Theorem (coherent information of a maximally entangled state)
 -/
 theorem coherent_info_max_ent_state 
-{ρ : density_operator} {hρ : is_maximally_entangled} :
+{ρ : density_operator n} {hρ : is_maximally_entangled} :
 I(A⟩B)_ρ = ... := 
 begin
     sorry
@@ -166,7 +204,7 @@ uncertainty of the environment."
 https://arxiv.org/pdf/1106.1445.pdf
 -/
 theorem coh_info_purification : 
-∀ (ρ : density_operator), 
+∀ (ρ : density_operator n), 
     ∃ {∣ψ⟩ : pure_state} {hψ : is_purification ρ ∣ψ⟩}, 
         I(A⟩B)_ρ = H(B)_∣ψ⟩ - H(E)_∣ψ⟩ :=
 begin
@@ -181,7 +219,7 @@ end
 /-
 Definition (quantum mutual information)
 -/
-def mut_info (ρ : density_operator) : ℝ := 
+def mut_info (ρ : density_operator n) : ℝ := 
 H(A)_ρ + H(B)_ρ - H(AB)_ρ
 
 notation `I(` A `;` B `)_` ρ := mut_info(ρ)
@@ -189,7 +227,7 @@ notation `I(` A `;` B `)_` ρ := mut_info(ρ)
 /-
 Lemma (rewrite in terms of cond entropy)
 -/
-lemma mut_info_cond_ent {ρ : density_operator} :
+lemma mut_info_cond_ent {ρ : density_operator n} :
 I(A;B)_ρ = H(A)_ρ - H(A|B)_ρ :=
 begin
     sorry
@@ -198,7 +236,7 @@ end
 /-
 Lemma (another rewrite in terms of cond entropy)
 -/
-lemma mut_info_cond_ent' {ρ : density_operator} : 
+lemma mut_info_cond_ent' {ρ : density_operator n} : 
 I(A;B)_ρ = H(B)_ρ - H(B|A)_ρ :=
 begin
     sorry
@@ -207,7 +245,7 @@ end
 /-
 Lemma (non-negativity)
 -/
-lemma mut_info_nonnegative {ρ : density_operator} : 
+lemma mut_info_nonneg {ρ : density_operator n} : 
 I(A;B)_ρ ≥ 0 :=
 begin
     sorry
@@ -221,7 +259,7 @@ end
 /-
 Definition (Holevo information)
 -/
-def Holevo_information (ρ : density_operator) := sorry
+def Holevo_info (ρ : density_operator n) := sorry
 
 
 
@@ -241,7 +279,7 @@ def accessible_info := sorry
 /-
 Definition (conditional quantum mutual information)
 -/
-def cond_mut_info (ρ : density_operator) : ℝ := 
+def cond_mut_info (ρ : density_operator n) : ℝ := 
 H(A|C)_ρ + H(B|C)_ρ - H(AB|C)_ρ
 
 notation `I(` A `;` B `|` C `)_` ρ := cond_mut_info ρ
@@ -249,7 +287,7 @@ notation `I(` A `;` B `|` C `)_` ρ := cond_mut_info ρ
 /-
 Lemma (quanutm mutual information chain rule)
 -/
-lemma mut_info_chain_rule {ρ : density_operator} :
+lemma mut_info_chain_rule {ρ : density_operator n} :
 I(A;BC)_ρ = I(A;B)_ρ + I(A;C|B)_ρ :=
 begin
     sorry
@@ -258,7 +296,7 @@ end
 /-
 Lemma (non-negativity / a.k.a. strong subadditivity)
 -/
-lemma cond_mut_info_nonnegative {ρ : density_operator} : 
+lemma cond_mut_info_nonnegative {ρ : density_operator n} : 
 I(A;B|C)_ρ ≥ 0 :=
 begin
     sorry
@@ -267,7 +305,7 @@ end
 /-
 Lemma ("duality" of condition mutual information)
 -/
-lemma duality {ρ : density_operator} {hρ : is_pure ρ} : 
+lemma duality {ρ : density_operator n} {hρ : is_pure ρ} : 
 I(A;B|C)_ρ = I(A;B|D)_ρ :=
 begin
     sorry
@@ -281,14 +319,14 @@ end
 /-
 Definition (quantum relative entropy)
 -/
-def quantum_relative_entropy (ρ : density_operator) (σ : positive_semidefinite_operator) := sorry
+def quantum_relative_entropy (ρ : density_operator n) (σ : positive_semidefinite_operator) := sorry
 
 notation `D(` ρ `∥` σ `)` := quantum_relative_entropy(ρ,σ)
 
 /-
 Theorem (quantum Pinsker inequality)
 -/
-theorem quantum_pinsker {ρ : density_operator} {σ : linear_operator} : 
+theorem quantum_pinsker {ρ : density_operator n} {σ : linear_operator} : 
 D(ρ∥σ) ≥ 1/(2 * ln 2) * ∥ρ - σ∥₁^2 := 
 begin
     sorry
@@ -302,5 +340,5 @@ end
 /-
 Definition (squashed entanglement of quantum state for a given partition)
 -/
-def squashed_entanglement (ρ : density_operator) 
+def squashed_entanglement (ρ : density_operator n) 
 {hρ : ρ.dim > 4} (partition_point : ℕ) : ℝ := sorry
