@@ -21,12 +21,12 @@ class ExampleProtocol1(object):
             chain.repeaters[i].attempt_link_creation(chain.repeaters[i+1])
         # Also ask the link layer for links between the endnodes and the
         # edge repeaters.
-        # First we get the repeater wired to each endnode
-        endnode1_repeater = chain.repeaters[0] if endnode1.cable == chain.repeaters[0].left_cable else chain.repeaters[-1]
-        endnode2_repeater = chain.repeaters[0] if endnode2.cable == chain.repeaters[0].left_cable else chain.repeaters[-1]
+        # First we get the repeater that's wired to each endnode
+        endnode1_repeater = chain.repeaters[0] if endnode1.lower_cable == chain.repeaters[0].left_lower_cable else chain.repeaters[-1]
+        endnode2_repeater = chain.repeaters[0] if endnode2.lower_cable == chain.repeaters[0].left_lower_cable else chain.repeaters[-1]
         # Then we link them.
         endnode1.attempt_link_creation(endnode1_repeater)
         endnode2.attempt_link_creation(endnode2_repeater)
         # Then we swap.
         for i in range(len(chain.repeaters)):
-            chain.repeaters[i].attempt_swap(chain.repeaters[i].left_link, chain.repeaters[i].right_link)
+            chain.repeaters[i].attempt_swap(chain.repeaters[i].left_lower_link, chain.repeaters[i].right_lower_link)

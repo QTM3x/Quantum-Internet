@@ -13,6 +13,9 @@ class Cable(object):
         self.node2 = None
         self.optical_fiber = OpticalFiber()
 
+    def is_connected(self, node):
+        return node == self.node1 or node == self.node2
+
     def connect_node(self, node):
         if self.node1 is None:
             self.node1 = node

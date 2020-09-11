@@ -10,6 +10,7 @@ class Photon(object):
         self.global_state = global_state_container.state
         self.id = self.global_state.create_qubit(self)
         self.header = None
+        self.link = None
 #         self.parent_optical_fiber = parent_optical_fiber
         
     # reset the state of the photon to the pure |0> state. 

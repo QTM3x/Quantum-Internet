@@ -14,27 +14,31 @@ class RepeaterHardware(object):
         print("creating new repeater hardware")
         self.parent_repeater = parent_repeater
         self.global_state = global_state_container.state
-        self.left_qubit = Qubit(self)
-        self.right_qubit = Qubit(self)
-        self.left_fiber = None
-        self.right_fiber = None                                         
+        self.left_upper_qubit = Qubit(self)
+        self.left_lower_qubit = Qubit(self)
+        self.right_upper_qubit = Qubit(self)
+        self.right_lower_qubit = Qubit(self)
+        self.left_upper_fiber = None
+        self.left_lower_fiber = None
+        self.right_upper_fiber = None
+        self.right_lower_fiber = None
 #         self.memoryQubits = []
 
-    def connect_right_fiber(self, fiber):
-        print("connecting right optical fiber in repeater hardware")
-        self.right_fiber = fiber
+    def connect_right_fiber(self, fiber, upper_or_lower="lower"):
+        print("connecting " + upper_or_lower + " right optical fiber in repeater hardware")
+        if upper_or_lower == "upper":
+            self.right_upper_fiber = fiber
+        else:
+            self.right_lower_fiber = fiber
         fiber.connect_node_hardware(self)
 
-    def connect_left_fiber(self, fiber):
-        print("connecting left optical fiber in repeater hardware")
-        self.left_fiber = fiber
+    def connect_left_fiber(self, fiber, upper_or_lower="lower"):
+        print("connecting " + upper_or_lower + " left optical fiber in repeater hardware")
+        if upper_or_lower == "upper":
+            self.left_upper_fiber = fiber
+        else:
+            self.left_lower_fiber = fiber
         fiber.connect_node_hardware(self)
-
-    def send_message(self, obj, msg):
-        obj.handle_message(msg)
-
-    def handle_message(self, msg):
-        return
 
     def swap_entanglement(self):
         print("swapping entanglement in repeater hardware")
@@ -43,15 +47,15 @@ class RepeaterHardware(object):
         # apply the right qutip gates. Assume ideal gates at this point while you're
         # building the thing.
         # Do stuff to the global state container's state.
-        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.left_qubit.id, target=self.right_qubit.id)
+        CNOT = cnot(N=int(math.log2(self.global_state.state.shape[0])), control=self.left_lower_qubit.id, target=self.right_lower_qubit.id)
         new_state = CNOT * self.global_state.state * CNOT.dag()
-        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit.id)
-        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_qubit.id)
+        Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_lower_qubit.id)
+        Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=self.left_lower_qubit.id)
         H = Y90 * Z180
         new_state = H * new_state * H.dag()
         self.global_state.update_state(new_state)
-        measurement_result1 = self.measure(self.left_qubit)
-        measurement_result2 = self.measure(self.right_qubit)
+        measurement_result1 = self.measure(self.left_lower_qubit)
+        measurement_result2 = self.measure(self.right_lower_qubit)
         # notify the parent repeater so that it can send the classical data to
         # the other repeater.
         msg = {'msg' : "child hardware: Entanglement swapping done. Handle corrections.", 
@@ -63,7 +67,7 @@ class RepeaterHardware(object):
 
     def apply_swap_corrections(self, side, measurement_result1, measurement_result2):
         print("applying swap corrections in repeater hardware")
-        qubit = self.left_qubit if side == "left" else self.right_qubit
+        qubit = self.left_lower_qubit if side == "left" else self.right_lower_qubit
         if measurement_result1 == 0 and measurement_result1 == 0:
             return
         elif measurement_result1 == 0 and measurement_result1 == 1:
@@ -108,8 +112,8 @@ class RepeaterHardware(object):
         # (the photon should be initialized to |0>. The initialization 
         # can be noisy).
         SWAP = swap(N=int(math.log2(self.global_state.state.shape[0])), targets=[qubit.id, photon.id])
-        newState = SWAP * self.global_state.state * SWAP.dag()
-        self.global_state.update_state(newState)
+        new_state = SWAP * self.global_state.state * SWAP.dag()
+        self.global_state.update_state(new_state)
 
     def unload_qubit_from_photon(self, qubit, photon):
         print("unloading data from photon onto local qubit")
@@ -120,16 +124,26 @@ class RepeaterHardware(object):
         new_state = SWAP * self.global_state.state * SWAP.dag()
         self.global_state.update_state(new_state)
         # notify the layers above that a qubit was received.
-        fiber = self.left_fiber if qubit == self.left_qubit else self.right_fiber
+        side = "left" if qubit in (self.left_lower_qubit, self.left_upper_qubit) else "right"
+        upper_or_lower = "upper" if qubit in (self.left_upper_qubit, self.right_upper_qubit) else "lower"
+        if side == "left":
+            fiber = self.left_upper_fiber if upper_or_lower == "upper" else self.left_lower_fiber
+        else:
+            fiber = self.right_upper_fiber if upper_or_lower == "upper" else self.right_lower_fiber
+        sender = fiber.node2 if self == fiber.node1 else fiber.node1
         if photon.header == "link":
-            print("received link qubit in repeater")
             msg = {'msg' : "child hardware: Received link qubit.",  # this is the standard. Document it somewhere.
-                   'sender' : fiber.node2 if self == fiber.node1 else fiber.node1,
-                   'receiver' : self}
+                   'sender' : sender,
+                   'receiver' : self,
+                   'side' : side,
+                   'upper_or_lower' : upper_or_lower,
+                   'link' : photon.link}
         else:
             msg = {'msg' : "child hardware: Received qubit.",  # this is the standard. Document it somewhere.
-                   'sender' : fiber.node2 if self == fiber.node1 else fiber.node1, 
-                   'receiver' : self}
+                   'sender' : sender, 
+                   'receiver' : self,
+                   'side' : side,
+                   'upper_or_lower' : upper_or_lower}
         if self.parent_repeater:
             self.send_message(self.parent_repeater, msg)
         photon.destroy()
@@ -143,28 +157,43 @@ class RepeaterHardware(object):
         # alert the repeaterHardware to receive the incoming photon.
         # The repeaterHardware chooses a (physical) qubit on which to unload the 
         # qubit carried on the photon.
-        qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
+        if fiber in (self.left_upper_fiber, self.left_lower_fiber):
+            qubit = self.left_upper_qubit if fiber == self.left_upper_fiber else self.left_lower_qubit
+        else:
+            qubit = self.right_upper_qubit if fiber == self.right_upper_fiber else self.right_lower_qubit
         self.unload_qubit_from_photon(qubit, photon)
 
-    def attempt_link_creation(self, remote_node):
+    def attempt_link_creation(self, remote_node, upper_or_lower="lower"):
         print("attempting link creation in repeater hardware")
         # remote is a repeater object.
         # here the physical details of link creation will be implemented:
         # 1. create EPR pair on one of the local qubits and a photon.
         # 2. send the photon to the remote receiver.
-        if self.left_fiber is None:
-            fiber = self.right_fiber
-        elif self.right_fiber is None:
-            fiber = self.left_fiber
-        elif self.left_fiber.is_connected(remote_node):
-            fiber = self.left_fiber
+        fiber = None
+        qubit = None
+        link = None
+        if self.left_lower_fiber.is_connected(remote_node) or self.left_upper_fiber.is_connected(remote_node):
+            side = "left"
+        elif self.right_lower_fiber.is_connected(remote_node) or self.right_upper_fiber.is_connected(remote_node):
+            side = "right"
         else:
-            fiber = self.right_fiber
-#         fiber = self.left_fiber if self.left_fiber.is_connected(remote_node) else self.right_fiber
-        qubit = self.left_qubit if fiber == self.left_fiber else self.right_qubit
+            print("not connected to remote node")
+            return
+        # WARNING: WORDY CODE
+        if side == "left":
+            fiber = self.left_upper_fiber if upper_or_lower == "upper" else self.left_lower_fiber
+            qubit = self.left_upper_qubit if upper_or_lower == "upper" else self.left_lower_qubit
+            if self.parent_repeater:
+                link = self.parent_repeater.left_upper_link if upper_or_lower == "upper" else self.parent_repeater.left_lower_link
+        else:
+            fiber = self.right_upper_fiber if upper_or_lower == "upper" else self.right_lower_fiber
+            qubit = self.right_upper_qubit if upper_or_lower == "upper" else self.right_lower_qubit
+            if self.parent_repeater:
+                link = self.parent_repeater.right_upper_link if upper_or_lower == "upper" else self.parent_repeater.right_lower_link
         qubit.reset()
         photon = Photon()
         photon.header = "link"
+        photon.link = link
         Z180 = rz(180, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         Y90  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=qubit.id)
         H = Y90 * Z180
@@ -184,4 +213,10 @@ class RepeaterHardware(object):
 
     def attempt_distillation(self):
         # apply gates on the qubits here
+        return
+    
+    def send_message(self, obj, msg):
+        obj.handle_message(msg)
+
+    def handle_message(self, msg):
         return

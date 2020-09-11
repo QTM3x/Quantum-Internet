@@ -23,7 +23,7 @@ class Application(object): # this code runs on the user's PQC (personal quantum 
 
     def handle_qubit_received(self):
         print("application received qubit with state", 
-            global_state_container.state.get_qubit_state(self.endnode.hardware.qubit.id))
+            global_state_container.state.get_qubit_state(self.endnode.hardware.lower_qubit.id))
 
     def send_message(self, obj, msg):
         obj.handle_message(msg)

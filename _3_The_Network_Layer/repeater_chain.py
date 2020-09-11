@@ -17,10 +17,13 @@ class RepeaterChain(object):
         for i in range(length):
             # for every repeater create a new cable to the right
             if i < length-1:
-                new_cable = Cable()
-                self.repeaters[i].connect_right_cable(new_cable)
+                new_upper_cable = Cable()
+                new_lower_cable = Cable()
+                self.repeaters[i].connect_right_cable(new_upper_cable, "upper")
+                self.repeaters[i].connect_right_cable(new_lower_cable, "lower")
             if i > 0:
-                self.repeaters[i].connect_left_cable(self.repeaters[i-1].right_cable)
+                self.repeaters[i].connect_left_cable(self.repeaters[i-1].right_upper_cable, "upper")
+                self.repeaters[i].connect_left_cable(self.repeaters[i-1].right_lower_cable, "lower")
             # after a repeater is connected, let the network
             # layer give it a network Id.
             self.assign_networkId(self.repeaters[i])
@@ -29,24 +32,26 @@ class RepeaterChain(object):
 
     def connect(self, endnode): #endnode is a link layer object
         print("connecting endnode to repeater chain")
-        if self.repeaters[0].left_cable == None: # in the future choose where to connect in a better way
-            new_cable = Cable()
-            endnode.connect_cable(new_cable)
-            self.repeaters[0].connect_left_cable(new_cable)
+        if self.repeaters[0].left_lower_cable == None: # in the future choose where to connect in a better way
+            new_upper_cable = Cable()
+            new_lower_cable = Cable()
+            endnode.connect_cable(new_upper_cable, "upper")
+            endnode.connect_cable(new_lower_cable, "lower")
+            self.repeaters[0].connect_left_cable(new_upper_cable, "upper")
+            self.repeaters[0].connect_left_cable(new_lower_cable, "lower")
         else:
-            new_cable = Cable()
-            self.repeaters[self.length-1].connect_right_cable(new_cable) 
-            endnode.connect_cable(new_cable)
+            new_upper_cable = Cable()
+            new_lower_cable = Cable()
+            endnode.connect_cable(new_upper_cable, "upper")
+            endnode.connect_cable(new_lower_cable, "lower")
+            self.repeaters[-1].connect_right_cable(new_upper_cable, "upper")
+            self.repeaters[-1].connect_right_cable(new_lower_cable, "lower")
         self.assign_networkId(endnode)
         print("assigned net id", endnode.netId)
 
     def attempt_swap(self, repeater):
         #ask repeater to do a swap
-        repeater.attempt_swap(repeater.left_link, repeater.right_link) #specify the links to swap#
-
-#     def attempt_link_creation(self, repeater1, repeater2):
-#         # this works between adjacent repeaters only. We don't want that. 
-#         repeater1.attempt_link_creation(repeater2)
+        repeater.attempt_swap(repeater.left_lower_link, repeater.right_lower_link) #specify the links to swap#
         
     def request_link(self, endnode1, endnode2, minimum_fidelity=-1):
         print("handling link request in repeater chain")
@@ -58,22 +63,16 @@ class RepeaterChain(object):
                }
         self.send_message(self.protocol, msg)
 
-    # def handle_endnodes_linked(self, endnode1, endnode2):
-    #     msg = {'msg': "repeater chain: Endnodes linked.",
-    #            'endnode1': endnode1,
-    #            'endnode2': endnode2}
-    #     self.send_message(self.parent_quantum_internet, msg)
-
     def assign_networkId(self, node):
         if type(node).__name__ == "Endnode":
-            if node.cable == None:
+            if node.lower_cable == None:
                 print("endnode is not wired to network")
-            elif node.cable == self.repeaters[0].left_cable:
+            elif node.lower_cable == self.repeaters[0].left_lower_cable:
                 node.netId = 0
-            elif node.cable == self.repeaters[-1].right_cable:
+            elif node.lower_cable == self.repeaters[-1].right_lower_cable:
                 node.netId = self.length + 1
         elif type(node).__name__ == "Repeater":
-            if node.right_cable == None and node.left_cable == None:
+            if node.right_lower_cable == None and node.left_lower_cable == None:
                 print("repeater is not wired to network")
             else:
                 node.netId = self.repeaters.index(node) + 1
@@ -84,7 +83,7 @@ class RepeaterChain(object):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
-        print("repeater chain received message")
+        print("repeater chain received message:", msg['msg'])
         if msg['msg'] == "repeater: Swap complete.":
             if type(msg['node1']).__name__ == "Endnode" and type(msg['node2']).__name__ == "Endnode":
                 msg = {'msg': "network layer: Link to remote endnode created.",

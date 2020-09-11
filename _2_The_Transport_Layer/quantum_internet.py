@@ -57,7 +57,7 @@ class QuantumInternet(object):
         obj.handle_message(msg)
 
     def handle_message(self, msg):
-        print("quantum internet received message")
+        print("quantum internet received message:", msg['msg'])
         if msg['msg'] == "network layer: Link to remote endnode created.":
             # check if the nodes have a pending transport request
             # ...
