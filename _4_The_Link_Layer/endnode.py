@@ -33,28 +33,33 @@ class Endnode(object):
         self.lower_link = None
 
     # attempt to create link with another repeater
-    def attempt_link_creation(self, node, upper_or_lower="lower"):
+    def attempt_link_creation(self, remote_node, upper_or_lower="lower"):
         print("attempting " + upper_or_lower + " link creation in endnode")
         # prepare a link layer Link object.
         if self.lower_cable is None and self.upper_cable is None:
             print("link creation failed: no cables connected.")
             return
         else:
-            if node in (self.lower_cable.node1, self.lower_cable.node2):
-                self.lower_link = Link()
-                self.lower_link.node1 = self
-            elif node in (self.upper_cable.node1, self.upper_cable.node2):
-                self.upper_link = Link()
-                self.upper_link.node1 = self
+            if upper_or_lower == "lower":
+                if remote_node in (self.lower_cable.node1, self.lower_cable.node2):
+                    self.lower_link = Link()
+                    self.lower_link.node1 = self
+                else:
+                    print("not connected to node via lower cable")
+                    return
             else:
-                print("link creation failed: not connected to node.")
-                return
+                if remote_node in (self.upper_cable.node1, self.upper_cable.node2):
+                    self.upper_link = Link()
+                    self.upper_link.node1 = self
+                else:
+                    print("not connected to node via upper cable")
+                    return
         # attempt link creation on the next free qubit
-        self.hardware.attempt_link_creation(node.hardware, upper_or_lower)
+        self.hardware.attempt_link_creation(remote_node.hardware, upper_or_lower)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
-    def attempt_distillation(self, links):
+    def attempt_distillation(self, link1, link2):
         self.hardware.attempt_distillation()
 
     # this function emits a signal to the link layer (which here takes the form 

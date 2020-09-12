@@ -137,7 +137,7 @@ class EndnodeHardware(object):
         if self.parent_endnode:
             self.send_message(self.parent_endnode, msg)
 
-    def attempt_link_creation(self, remote_node, upper_or_lower="lower"):
+    def attempt_link_creation(self, remote_hardware, upper_or_lower="lower"):
         print("attempting link creation in endnode hardware.")
         # remote is a repeater object.
         # here the physical details of link creation will be implemented:

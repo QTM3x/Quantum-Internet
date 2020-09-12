@@ -48,15 +48,19 @@ class Repeater(object):
         self.hardware.swap_entanglement()
 
     # attempt to create link with another node
-    def attempt_link_creation(self, node, upper_or_lower="lower"):
+    def attempt_link_creation(self, remote_node, upper_or_lower="lower"):
         print("attempting " + upper_or_lower + " link creation in repeater")
         # prepare a link layer Link object.
-        if self.left_lower_cable.is_connected(node) or self.left_upper_cable.is_connected(node):
+        if self.left_lower_cable and self.left_lower_cable.is_connected(remote_node):
             side = "left"
-        elif self.right_lower_cable.is_connected(node) or self.right_upper_cable.is_connected(node):
+        elif self.left_upper_cable and self.left_upper_cable.is_connected(remote_node):
+            side = "left"
+        elif self.right_lower_cable and self.right_lower_cable.is_connected(remote_node):
+            side = "right"
+        elif self.right_upper_cable and self.right_upper_cable.is_connected(remote_node):
             side = "right"
         else:
-            print("link creation failed: not connected to node.")
+            print("not connected to remote node")
             return
         if side == "left":
             if upper_or_lower == "upper":
@@ -73,11 +77,11 @@ class Repeater(object):
                 self.right_lower_link = Link()
                 self.right_lower_link.node1 = self
         # ask the hardware to attempt link creation
-        self.hardware.attempt_link_creation(node.hardware, upper_or_lower)
+        self.hardware.attempt_link_creation(remote_node.hardware, upper_or_lower)
 
     # attempt to do entanglement distillation of 
     # two links with the same repeater.
-    def attempt_distillation(self, links):
+    def attempt_distillation(self, link1, link2):
         self.hardware.attempt_distillation()
 
     def handle_swap_success(self):

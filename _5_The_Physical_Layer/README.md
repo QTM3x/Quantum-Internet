@@ -1,3 +1,46 @@
+# The Physical Layer
+###### This README is still being written.
+
+## Qubit carriers
+
+Each qubit carrier gets an id when it's created. 
+
+For `Qubit`:
+
+```
+class Qubit(object):
+    def __init__(self, parent_hardware, ...):
+        ...
+        self.global_state = global_state_container.state
+        self.id = self.global_state.create_qubit(self)
+        ...
+```
+
+For `Photon`:
+
+```
+class Photon(object):
+    def __init__(self, ...):
+        ...
+        self.global_state = global_state_container.state
+        self.id = self.global_state.create_qubit(self)
+        ...
+```
+
+This id corresponds to the index of qubit (photons are currently modelled as qubits) in the global state container [ADD LINK]. We need these ids to tell QuTip on which qubit we want to apply a given gate.
+
+Here is an example: To apply a Y gate on a qubit Q, we do 
+
+```
+Y  = ry(90, N=int(math.log2(self.global_state.state.shape[0])), target=Q.id)
+new_state = G * old_state * G.dag()
+global_state.update_state(new_state)
+```
+
+This is how gates are applied in the `EndnodeHardware` class, for example.
+
+----
+
 #### A short story (one possible scenario):
 
 Two parties, Alice and Bob. 
