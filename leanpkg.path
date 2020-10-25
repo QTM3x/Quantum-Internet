@@ -1,3 +1,4 @@
 builtin_path
+path _target/deps/Lean-tutorials/src
 path _target/deps/mathlib/src
-path ./
+path ./src

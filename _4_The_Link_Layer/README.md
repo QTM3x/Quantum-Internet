@@ -1,5 +1,8 @@
+##### 🚧  This README is still being written. 🚧 
+
+-----
+
 # The Link Layer
-###### This README is still being written.
 
 ## Interface to Network layer
 

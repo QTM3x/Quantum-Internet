@@ -1,8 +1,9 @@
 [package]
 name = "Quantum-Internet"
 version = "0.1"
-lean_version = "leanprover-community/lean:3.18.4"
+lean_version = "leanprover-community/lean:3.21.0"
 path = "src"
 
 [dependencies]
-mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "bd5552a304e11187f44b5c5b9c005eabe40e136b"}
+mathlib = {git = "https://github.com/leanprover-community/mathlib", rev = "f056468f8dbc68aac3cb3d56807f10d2bee247ff"}
+Lean-tutorials = {git = "https://github.com/BassemSafieldeen/Lean-tutorials.git", rev = "d254b6fb4817d722a08d1a56f1f11745dd33967b"}

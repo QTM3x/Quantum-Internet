@@ -7,3 +7,5 @@
 
 *.pyc
 .vscode/settings.json
+
+_target/
